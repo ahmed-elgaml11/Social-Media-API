@@ -9,6 +9,6 @@ async function bootstrap() {
     prefix: 'api/v',
     defaultVersion: '1'
   });
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 5500);
 }
 bootstrap();

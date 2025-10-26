@@ -3,18 +3,23 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 
 @Module({
   imports: [
+    UsersModule,
     ConfigModule.forRoot({
-        isGlobal: true,
-
+      isGlobal: true,
     }),
-    UsersModule, 
-    MongooseModule.forRoot('mongodb+srv://backend2:asdfg12345^@cluster0.hz57cli.mongodb.net/social?retryWrites=true&w=majority&appName=Cluster0'), UsersModule],
+    MongooseModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('MONGO_URL'),
+      }),
+    })
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
