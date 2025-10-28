@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import {  SignUpDto } from './dto/create-auth.dto';
+import { SignUpDto } from './dto/sign-up.dto';
 import { transformToDtoResponse } from 'src/_cores/interceptors/transform-dto.interceptors';
 import { ResponseAuthto } from './dto/response-auth.dto';
 
@@ -9,11 +9,11 @@ import { ResponseAuthto } from './dto/response-auth.dto';
 @transformToDtoResponse(ResponseAuthto)
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('sign-up')
-  async create(@Body() signupDto: SignUpDto) {
-    return this.authService.create(signupDto);
+  async signUp(@Body() signupDto: SignUpDto) {
+    return this.authService.signUp(signupDto);
 
     // return {
     //   message: 'User created successfully',
@@ -22,6 +22,14 @@ export class AuthController {
     //     email: user.email
     //   }
     // }
+  }
+
+
+
+  @Post('sign-up')
+  async signIn(@Body() signupDto: SignUpDto) {
+    return this.authService.signIn(signupDto);
+
   }
 
 
