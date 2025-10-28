@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     UsersModule,
+    AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -19,7 +20,6 @@ import { AuthModule } from './auth/auth.module';
         uri: configService.get<string>('MONGO_URL'),
       }),
     }),
-    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],

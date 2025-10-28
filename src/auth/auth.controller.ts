@@ -14,7 +14,16 @@ export class AuthController {
   @Post('sign-up')
   async create(@Body() signupDto: SignUpDto) {
     return this.authService.create(signupDto);
+
+    // return {
+    //   message: 'User created successfully',
+    //   data: {
+    //     name: user.name,
+    //     email: user.email
+    //   }
+    // }
   }
+
 
   @Get()
   findAll() {
@@ -31,3 +40,4 @@ export class AuthController {
     return this.authService.remove(+id);
   }
 }
+
