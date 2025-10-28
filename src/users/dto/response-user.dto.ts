@@ -1,9 +1,9 @@
 import { Expose, Transform } from "class-transformer"
 
-export class ResponseAuthDto {
+export class ResponseUserDto {
     @Expose()
     @Transform(({ obj }) => obj._id.toString())
-    _id: string
+    id: string
     @Expose()
     name: string
      @Expose()

@@ -1,12 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { transformToDtoResponse } from 'src/_cores/interceptors/transform-dto.interceptors';
-import { ResponseAuthto } from './dto/response-auth.dto';
+import { ResponseAuthDto } from './dto/response-auth.dto';
+import { AuthGuard } from 'src/_cores/guards/auth.guard';
 
 
 
-@transformToDtoResponse(ResponseAuthto)
+@UseGuards(AuthGuard)
+@transformToDtoResponse(ResponseAuthDto)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
@@ -29,7 +31,6 @@ export class AuthController {
   @Post('sign-up')
   async signIn(@Body() signupDto: SignUpDto) {
     return this.authService.signIn(signupDto);
-
   }
 
 
