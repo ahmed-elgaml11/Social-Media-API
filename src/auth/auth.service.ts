@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { SignUpDto } from './dto/sign-up.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from 'src/users/schemas/user.schema';
@@ -14,11 +14,17 @@ export class AuthService {
     private jwtService: JwtService
   ) { }
   async signUp(signUpDto: SignUpDto) {
+    console.log('signUpDto', signUpDto);
+
+    const email = await this.userModel.findOne({ email: signUpDto.email });
+    if (email) {
+      throw new BadRequestException('Email Already Exists')
+    }
     const hashPassword = await bcrypt.hash(signUpDto.password, 10);
-    const user = new this.userModel({ ...SignUpDto, password: hashPassword });
+    const user = new this.userModel({ ...signUpDto, password: hashPassword });
     const savedUser = await user.save()
 
-    const payload = { name: savedUser.name, id: savedUser._id, email: savedUser.email };
+    const payload = { name: savedUser.name, id: savedUser._id, email: savedUser.email, role: savedUser.role };
 
     const access_token = await this.jwtService.signAsync(payload)
     return { access_token, user: savedUser };

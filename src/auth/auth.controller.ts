@@ -7,7 +7,7 @@ import { AuthGuard } from 'src/_cores/guards/auth.guard';
 
 
 
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
 @transformToDtoResponse(ResponseAuthDto)
 @Controller('auth')
 export class AuthController {

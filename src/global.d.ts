@@ -1,7 +1,8 @@
 export interface IUserPaylod {
     id: string,
     name: string,
-    email: string
+    email: string,
+    role: string
 }
 declare global {
   namespace Express {

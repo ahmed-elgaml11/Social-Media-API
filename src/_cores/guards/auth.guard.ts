@@ -8,7 +8,8 @@ export class AuthGuard implements CanActivate {
   constructor(private jwtService: JwtService) { }
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token = request.headers.Authorization.split(' ')[1]
+    console.log('request.headers', request.headers);
+    const token = request.headers.authorization.split(' ')[1]
     if (!token) {
       throw new UnauthorizedException()
     }
@@ -18,7 +19,8 @@ export class AuthGuard implements CanActivate {
       const user = {
         id: decoded.id,
         name: decoded.name,
-        email: decoded.email
+        email: decoded.email,
+        role: decoded.role
       } as IUserPaylod
 
       request.user = user
