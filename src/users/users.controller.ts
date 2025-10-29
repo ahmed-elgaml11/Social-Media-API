@@ -8,25 +8,29 @@ import { CurrentUser } from 'src/_cores/decorators/currentUser.auth.decorator';
 import type { IUserPaylod } from 'src/global';
 import { transformToDtoResponse } from 'src/_cores/interceptors/transform-dto.interceptors';
 import { ResponseUserDto } from './dto/response-user.dto';
+import { Roles } from 'src/_cores/decorators/role.decorator';
+import { RoleGuard } from 'src/_cores/guards/role.guard';
 
 
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, RoleGuard)
 @transformToDtoResponse(ResponseUserDto)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
 
+  @Roles('admin', 'user')
   @Get('profile')
   getMe(@CurrentUser() currentUser: IUserPaylod) {
     return currentUser
   }
 
+  @Roles('admin')
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
-
+  @Roles('admin')
   @Get()
   findAll() {
     return this.usersService.findAll();
@@ -36,12 +40,12 @@ export class UsersController {
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(+id);
   }
-
+  @Roles('admin', 'user')
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
   }
-
+  @Roles('admin', 'user')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);

@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import type { IRole } from "src/global";
 
 
 @Schema({ timestamps: true })
@@ -14,7 +15,7 @@ export class User {
 
 
     @Prop({default: 'user'})
-    role: 'user' | 'admin';
+    role: IRole;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
