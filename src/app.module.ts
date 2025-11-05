@@ -5,12 +5,15 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { PostModule } from './post/post.module';
+import { ResourceModule } from './resource/resource.module';
 
 
 @Module({
   imports: [
     UsersModule,
     AuthModule,
+    PostModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -20,6 +23,7 @@ import { AuthModule } from './auth/auth.module';
         uri: configService.get<string>('MONGO_URL'),
       }),
     }),
+    ResourceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

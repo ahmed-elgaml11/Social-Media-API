@@ -10,7 +10,7 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = request.headers.authorization.split(' ')[1]
     if (!token) {
-      throw new UnauthorizedException()
+      throw new UnauthorizedException('No token provided');
     }
     try {
       const decoded = await this.jwtService.verifyAsync(token) as IUserPaylod
@@ -24,7 +24,7 @@ export class AuthGuard implements CanActivate {
       request.user = user
 
     } catch (err) {
-      throw new UnauthorizedException()
+      throw new UnauthorizedException('Invalid or expired token');
     }
     return true
   }

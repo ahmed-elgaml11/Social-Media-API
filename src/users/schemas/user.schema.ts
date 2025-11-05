@@ -1,5 +1,9 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { HydratedDocument } from "mongoose";
 import type { IRole } from "src/global";
+
+
+export type UserDocument = HydratedDocument<User>
 
 
 @Schema({ timestamps: true })

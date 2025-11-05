@@ -30,6 +30,8 @@ export class UsersController {
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
+
+
   @Roles('admin')
   @Get()
   findAll() {
@@ -40,11 +42,15 @@ export class UsersController {
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(+id);
   }
+
+  
   @Roles('admin', 'user')
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
   }
+
+  
   @Roles('admin', 'user')
   @Delete(':id')
   remove(@Param('id') id: string) {
