@@ -21,7 +21,7 @@ export class ResourceService {
             case 'posts': {
                 const post = await this.postModel.findById(resourceId)
                 if (!post) throw new BadRequestException('post not found')
-                return post.user?._id.toString()
+                return post.author?._id.toString()
             }
             default:
                 throw new NotFoundException('resource not found')

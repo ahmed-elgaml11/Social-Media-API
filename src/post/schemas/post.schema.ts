@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
+import type { IPrivacy } from "src/global";
 import type { UserDocument } from "src/users/schemas/user.schema";
 
 export type PostDocument = HydratedDocument<Post>
@@ -7,11 +8,20 @@ export type PostDocument = HydratedDocument<Post>
 @Schema({ timestamps: true })
 export class Post {
 
-    @Prop({required: true})
-    title: string
-
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-    user: UserDocument
+    author: UserDocument
+
+    @Prop({required: true})
+    content: string
+
+    @Prop({default: '#fff'})
+    backgroundColor: string
+
+    @Prop()
+    mediaUrls?: string[]
+
+    @Prop({enum: ['public', 'private', 'friends'], default: 'public'})
+    privacy: IPrivacy
 
 
 }

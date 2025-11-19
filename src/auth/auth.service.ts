@@ -44,7 +44,7 @@ export class AuthService {
     if (!bcrypt.compare(user.password, password)) {
       throw new NotFoundException('Invalid Email Or Password')
     }
-    const payload = { name: user.name, id: user._id, email: user.email };
+    const payload = { name: user.name, id: user._id, email: user.email, role: user.role };
 
     const access_token = await this.jwtService.signAsync(payload)
     return { access_token, user };

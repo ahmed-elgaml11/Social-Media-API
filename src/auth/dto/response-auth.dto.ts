@@ -1,8 +1,9 @@
 import { Expose, Transform } from "class-transformer"
+import { ObjectId } from "src/_cores/decorators/object-id.decorator"
 
 export class ResponseAuthDto {
     @Expose()
-    @Transform(({ obj }) => obj._id.toString())
+    @ObjectId()
     _id: string
     @Expose()
     name: string
