@@ -10,6 +10,8 @@ import { ResponsePostDto } from './dto/response-post.dto';
 import { CurrentUser } from 'src/_cores/decorators/currentUser.auth.decorator';
 import type { IUserPaylod } from 'src/global';
 import { ParseObjectIdPipe } from 'src/_cores/pipes/parse-objectid.pipe';
+import { identity } from 'rxjs';
+import { UploadMediaDto } from './dto/upload-media.dto';
 
 
 @UseGuards(AuthGuard, RoleGuard)
@@ -31,6 +33,11 @@ export class PostController {
   @Get(':id')
   findOne(@Param('id', ParseObjectIdPipe) id: string) {
     return this.postService.findOne(id);
+  }
+
+  @Patch(':id/upload')
+  uploadMedia(@Body() uploadMediaDtos: UploadMediaDto[], @Param('id', ParseObjectIdPipe) id: string){
+    return this.postService.uploadMedia(id, uploadMediaDtos)
   }
 
   @Roles('user', 'admin')

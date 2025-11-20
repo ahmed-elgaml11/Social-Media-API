@@ -1,6 +1,6 @@
 import { Expose, Transform } from "class-transformer";
 import * as global from "src/global";
-import { PostDocument } from "../schemas/post.schema";
+import { MediaType, PostDocument } from "../schemas/post.schema";
 import { ObjectId } from "src/_cores/decorators/object-id.decorator";
 
 export class ResponsePostDto {
@@ -18,7 +18,7 @@ export class ResponsePostDto {
     @Expose()
     privacy: global.IPrivacy
     @Expose()
-    mediaUrls: string[]
+    mediaUrls: MediaType[]
     // custom properties 
     @Expose()
     @Transform(({obj}: {obj: PostDocument}) => obj.author._id)

@@ -6,6 +6,7 @@ import { Post } from './schemas/post.schema';
 import { Model } from 'mongoose';
 import { User } from 'src/users/schemas/user.schema';
 import { IUserPaylod } from 'src/global';
+import { UploadMediaDto } from './dto/upload-media.dto';
 
 @Injectable()
 export class PostService {
@@ -20,6 +21,16 @@ export class PostService {
       author: user
     })
     return post.save();
+  }
+  async uploadMedia(id: string, uploadMediaDtos: UploadMediaDto[]) {
+    const post = await this.postModel.findById(id)
+    if (!post) {
+      throw new NotFoundException('post not found')
+    }
+    uploadMediaDtos.forEach(media => {
+      post.mediaUrls.push(media)
+    });
+    await post.save()
   }
 
   findAll() {

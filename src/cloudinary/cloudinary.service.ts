@@ -19,4 +19,7 @@ export class CloudinaryService {
       streamifier.createReadStream(file.buffer).pipe(uploadStream);
     });
   }
+  uploadMultipleFiles(files: Express.Multer.File[]): Promise<CloudinaryResponse[]> {
+    return Promise.all(files.map((file: Express.Multer.File) => this.uploadFile(file)))
+  }
 }

@@ -4,6 +4,13 @@ import type { IPrivacy } from "src/global";
 import type { UserDocument } from "src/users/schemas/user.schema";
 
 export type PostDocument = HydratedDocument<Post>
+export class MediaType {
+    version: number
+    display_name: string
+    format: string
+    resource_type: string
+}
+
 
 @Schema({ timestamps: true })
 export class Post {
@@ -17,8 +24,8 @@ export class Post {
     @Prop({default: '#fff'})
     backgroundColor: string
 
-    @Prop()
-    mediaUrls?: string[]
+    @Prop({default: []})
+    mediaUrls: MediaType[]
 
     @Prop({enum: ['public', 'private', 'friends'], default: 'public'})
     privacy: IPrivacy
