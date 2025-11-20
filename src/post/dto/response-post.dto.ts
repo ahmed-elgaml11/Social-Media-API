@@ -1,7 +1,28 @@
 import { Expose, Transform } from "class-transformer";
 import * as global from "src/global";
-import { MediaType, PostDocument } from "../schemas/post.schema";
+import { PostDocument } from "../schemas/post.schema";
 import { ObjectId } from "src/_cores/decorators/object-id.decorator";
+
+
+class MediaType {
+    @Transform(({ obj }) => `
+     https://res.cloudinary.com/${process.env.CLOUDINARY_NAME}/${obj.resource_type}/upload/${obj.version}/${obj.public_id}.${obj.format}
+`)
+    @Expose()
+    url: string
+    @Expose()
+    public_id: string
+    @Expose()
+    version: number
+    @Expose()
+    display_name: string
+    @Expose()
+    format: string
+    @Expose()
+    resource_type: string
+}
+
+
 
 export class ResponsePostDto {
     @Expose()
@@ -18,15 +39,15 @@ export class ResponsePostDto {
     @Expose()
     privacy: global.IPrivacy
     @Expose()
-    mediaUrls: MediaType[]
+    mediaFiles: MediaType[]
     // custom properties 
     @Expose()
-    @Transform(({obj}: {obj: PostDocument}) => obj.author._id)
+    @Transform(({ obj }: { obj: PostDocument }) => obj.author._id)
     authorId: string
     @Expose()
-    @Transform(({obj}) => obj.author.email)
+    @Transform(({ obj }) => obj.author.email)
     authorEmail: string
     @Expose()
-    @Transform(({obj}) => obj.author.name)
+    @Transform(({ obj }) => obj.author.name)
     authorName: string
 }

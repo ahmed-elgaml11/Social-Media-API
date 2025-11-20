@@ -10,15 +10,15 @@ import { ResponsePostDto } from './dto/response-post.dto';
 import { CurrentUser } from 'src/_cores/decorators/currentUser.auth.decorator';
 import type { IUserPaylod } from 'src/global';
 import { ParseObjectIdPipe } from 'src/_cores/pipes/parse-objectid.pipe';
-import { identity } from 'rxjs';
 import { UploadMediaDto } from './dto/upload-media.dto';
+import { DeleteMediaDto } from './dto/delete-media.dto';
 
 
 @UseGuards(AuthGuard, RoleGuard)
 @transformToDtoResponse(ResponsePostDto)
 @Controller('posts')
 export class PostController {
-  constructor(private readonly postService: PostService) {}
+  constructor(private readonly postService: PostService) { }
 
   @Post()
   create(@Body() createPostDto: CreatePostDto, @CurrentUser() user: IUserPaylod) {
@@ -36,8 +36,13 @@ export class PostController {
   }
 
   @Patch(':id/upload')
-  uploadMedia(@Body() uploadMediaDtos: UploadMediaDto[], @Param('id', ParseObjectIdPipe) id: string){
+  uploadMedia(@Body() uploadMediaDtos: UploadMediaDto[], @Param('id', ParseObjectIdPipe) id: string) {
     return this.postService.uploadMedia(id, uploadMediaDtos)
+  }
+
+  @Delete(':id/upload')
+  removeMedia(@Param('id', ParseObjectIdPipe) id: string, @Body() deleteMediaDto: DeleteMediaDto) {
+    return this.postService.removeMedia(id, deleteMediaDto)
   }
 
   @Roles('user', 'admin')

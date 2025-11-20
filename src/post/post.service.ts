@@ -7,6 +7,7 @@ import { Model } from 'mongoose';
 import { User } from 'src/users/schemas/user.schema';
 import { IUserPaylod } from 'src/global';
 import { UploadMediaDto } from './dto/upload-media.dto';
+import { DeleteMediaDto } from './dto/delete-media.dto';
 
 @Injectable()
 export class PostService {
@@ -22,16 +23,29 @@ export class PostService {
     })
     return post.save();
   }
+
   async uploadMedia(id: string, uploadMediaDtos: UploadMediaDto[]) {
     const post = await this.postModel.findById(id)
     if (!post) {
       throw new NotFoundException('post not found')
     }
     uploadMediaDtos.forEach(media => {
-      post.mediaUrls.push(media)
+      post.mediaFiles.push(media)
     });
     await post.save()
   }
+
+  async removeMedia(id: string, deleteMediaDto: DeleteMediaDto) {
+    const post = await this.postModel.findById(id)
+    if (!post) {
+      throw new NotFoundException('post not found')
+    }
+    post.mediaFiles = post.mediaFiles.filter((media) => media.public_id !== deleteMediaDto.mediaId)
+    await post.save()
+  }
+  
+
+  
 
   findAll() {
     return this.postModel.find().populate('author');

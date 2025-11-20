@@ -3,8 +3,13 @@ import mongoose, { HydratedDocument } from "mongoose";
 import type { IPrivacy } from "src/global";
 import type { UserDocument } from "src/users/schemas/user.schema";
 
+
+
+
+
 export type PostDocument = HydratedDocument<Post>
 export class MediaType {
+    public_id: string
     version: number
     display_name: string
     format: string
@@ -25,7 +30,7 @@ export class Post {
     backgroundColor: string
 
     @Prop({default: []})
-    mediaUrls: MediaType[]
+    mediaFiles: MediaType[]
 
     @Prop({enum: ['public', 'private', 'friends'], default: 'public'})
     privacy: IPrivacy
