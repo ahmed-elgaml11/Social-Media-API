@@ -1,4 +1,4 @@
-import { Expose, Transform } from "class-transformer";
+import { Expose, Transform, Type } from "class-transformer";
 import * as global from "src/global";
 import { PostDocument } from "../schemas/post.schema";
 import { ObjectId } from "src/_cores/decorators/object-id.decorator";
@@ -39,6 +39,7 @@ export class ResponsePostDto {
     @Expose()
     privacy: global.IPrivacy
     @Expose()
+    @Type(() => MediaType)
     mediaFiles: MediaType[]
     // custom properties 
     @Expose()

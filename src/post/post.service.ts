@@ -43,12 +43,33 @@ export class PostService {
     post.mediaFiles = post.mediaFiles.filter((media) => media.public_id !== deleteMediaDto.mediaId)
     await post.save()
   }
-  
 
-  
 
-  findAll() {
-    return this.postModel.find().populate('author');
+
+
+  async findAll(user: IUserPaylod, limit: number, cursor?: string) {
+
+    const query: Record<string, object> = {}
+    if (cursor) {
+      query.createdAt = { $lt: new Date(cursor) }
+    }
+
+    const posts = await this.postModel
+      .find(query)
+      .populate('author')
+      .lean()
+      .sort({ createdAt: -1 })
+      .limit(limit + 1);
+
+    const hasNextPage = posts.length > limit
+
+    const items = hasNextPage ? posts.slice(0, limit) : posts
+
+    return {
+        items,
+        hasNextPage,
+        cursor: hasNextPage ? items[items.length -1].createdAt : null
+      }
   }
 
   findOne(id: string) {

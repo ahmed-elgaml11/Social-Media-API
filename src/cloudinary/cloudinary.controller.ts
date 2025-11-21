@@ -11,7 +11,7 @@ import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { version } from 'os';
 
 @Controller('image')
-export class Cloudinaryontroller {
+export class CloudinaryController {
     constructor(private readonly cloudinaryService: CloudinaryService) { }
 
     @Post('upload')

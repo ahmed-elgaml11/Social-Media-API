@@ -35,6 +35,7 @@ export class Post {
     @Prop({enum: ['public', 'private', 'friends'], default: 'public'})
     privacy: IPrivacy
 
+    createdAt: Date
 
 }
 
