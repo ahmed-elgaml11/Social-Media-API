@@ -8,12 +8,15 @@ import { User } from 'src/users/schemas/user.schema';
 import { IUserPaylod } from 'src/global';
 import { UploadMediaDto } from './dto/upload-media.dto';
 import { DeleteMediaDto } from './dto/delete-media.dto';
+import { AddReactionDto } from './dto/add-reaction.dto';
+import { ReactionService } from 'src/reaction/reaction.service';
 
 @Injectable()
 export class PostService {
   constructor(
     @InjectModel(Post.name) private postModel: Model<Post>,
     @InjectModel(User.name) private userModel: Model<User>,
+    private readonly reactionService: ReactionService,
   ) { }
 
   async create(createPostDto: CreatePostDto, user: IUserPaylod) {
@@ -69,5 +72,10 @@ export class PostService {
       throw new NotFoundException('post not found')
     }
     return post
+  }
+
+
+  async addReaction(addReactionDto: AddReactionDto, currentUser: IUserPaylod) {
+
   }
 }

@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
-import type { IPrivacy } from "src/global";
+import { REACTION_TYPES } from "src/_cores/global/constants";
+import type { IPrivacy, IReactionType } from "src/global";
 import type { UserDocument } from "src/users/schemas/user.schema";
 
 
@@ -31,8 +32,10 @@ export class Post {
 
     @Prop({default: []})
     mediaFiles: MediaType[]
+    @Prop({type: Map, of: Number, default: {}})
+    reactionsCount: Map<IReactionType, number>
 
-    @Prop({enum: ['public', 'private', 'friends'], default: 'public'})
+    @Prop({enum: REACTION_TYPES, default: 'public'})
     privacy: IPrivacy
 
 

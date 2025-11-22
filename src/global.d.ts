@@ -9,6 +9,8 @@ declare type IRole = 'admin' | 'user'
 
 declare type IPrivacy = 'private' | 'public' | 'friends'
 
+declare type IReactionType = 'like' | 'love' | 'haha' | 'wow' | 'happy' | 'angry'
+
 declare global {
   namespace Express {
     interface Request {
