@@ -10,6 +10,7 @@ import { UploadMediaDto } from './dto/upload-media.dto';
 import { DeleteMediaDto } from './dto/delete-media.dto';
 import { AddReactionDto } from './dto/add-reaction.dto';
 import { ReactionService } from 'src/reaction/reaction.service';
+import { RemoveReactionDto } from './dto/remove-reaction.dto';
 
 @Injectable()
 export class PostService {
@@ -115,15 +116,13 @@ export class PostService {
     } else {
       await this.reactionService.create(addReactionDto, currentUser);
     }
-    // update post reaction counts
+    // update post reactioncounts
     const reactionCounts = post.reactionsCount || {};
     // decrease old reaction count
-    if (existingReaction && oldReactionType) {
-      const currentReactionCountValue = reactionCounts.get(existingReaction?.type) || 0;
+    if (oldReactionType) {
+      const currentReactionCountValue = reactionCounts.get(oldReactionType) || 0;
       reactionCounts.set(oldReactionType, currentReactionCountValue - 1 > 0 ? currentReactionCountValue - 1 : 0);
-
     }
-
     // increase new reaction count
     const newReactionCountValue = reactionCounts.get(reactionType) || 0;
     reactionCounts.set(reactionType, newReactionCountValue + 1);
@@ -131,4 +130,38 @@ export class PostService {
     post.reactionsCount = reactionCounts;
     await post.save();
   }
+
+
+  async removeReaction(removeReactionDto: RemoveReactionDto, currentUser: IUserPaylod) {
+    const { postId } = removeReactionDto;
+    const post = await this.findOne(postId);
+    const existingReaction = await this.reactionService.findExistingReaction(postId, currentUser.id);
+    if (!existingReaction) return;
+
+    const reactionType = existingReaction.type;
+    await this.reactionService.remove(existingReaction._id.toString());
+
+    await this.postModel.findByIdAndUpdate(postId, {
+      $inc: { [`reactionsCount.${reactionType}`]: -1 }
+    })
+    
+
+    // update post reactioncounts
+    const reactionCounts = post.reactionsCount || {};
+    // decrease reaction count
+    const currentReactionCountValue = reactionCounts.get(reactionType) || 0;
+    reactionCounts.set(reactionType, currentReactionCountValue - 1 > 0 ? currentReactionCountValue - 1 : 0);
+    post.reactionsCount = reactionCounts;
+    await post.save();
+  }
+
+
+
+
+
+
+
+
+
+
 }

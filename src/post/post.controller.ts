@@ -13,6 +13,7 @@ import { ParseObjectIdPipe } from 'src/_cores/pipes/parse-objectid.pipe';
 import { UploadMediaDto } from './dto/upload-media.dto';
 import { DeleteMediaDto } from './dto/delete-media.dto';
 import { AddReactionDto } from './dto/add-reaction.dto';
+import { RemoveReactionDto } from './dto/remove-reaction.dto';
 
 
 @UseGuards(AuthGuard, RoleGuard)
@@ -28,6 +29,10 @@ export class PostController {
   @Post('reaction')
   addReaction(@Body() addReactionDto: AddReactionDto, @CurrentUser() user: IUserPaylod) {
     return this.postService.addReaction(addReactionDto, user);
+  }
+  @Delete('reaction')
+  removeReaction(@Body() removeReactionDto: RemoveReactionDto, @CurrentUser() user: IUserPaylod) {
+    return this.postService.removeReaction(removeReactionDto, user);
   }
 
   @Get()

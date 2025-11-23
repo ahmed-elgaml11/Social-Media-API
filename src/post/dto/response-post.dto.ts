@@ -2,6 +2,7 @@ import { Expose, Transform, Type } from "class-transformer";
 import * as global from "src/global";
 import { PostDocument } from "../schemas/post.schema";
 import { ObjectId } from "src/_cores/decorators/object-id.decorator";
+import { IReactionType } from "src/global";
 
 
 class MediaType {
@@ -41,6 +42,11 @@ export class ResponsePostDto {
     @Expose()
     @Type(() => MediaType)
     mediaFiles: MediaType[]
+    @Expose()
+    @Transform(({ obj }) => obj.reactionCounts)
+    reactionsCount: Map<IReactionType, number>
+
+    
     // custom properties 
     @Expose()
     @Transform(({ obj }: { obj: PostDocument }) => obj.author._id)
