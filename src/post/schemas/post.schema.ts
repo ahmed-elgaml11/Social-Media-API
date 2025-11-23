@@ -38,6 +38,7 @@ export class Post {
     @Prop({enum: REACTION_TYPES, default: 'public'})
     privacy: IPrivacy
 
+    createdAt: Date
 
 }
 
