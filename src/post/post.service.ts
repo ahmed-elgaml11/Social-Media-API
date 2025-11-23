@@ -5,7 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Post } from './schemas/post.schema';
 import { Model } from 'mongoose';
 import { User } from 'src/users/schemas/user.schema';
-import { IUserPaylod } from 'src/global';
+import { IReactionType, IUserPaylod } from 'src/global';
 import { UploadMediaDto } from './dto/upload-media.dto';
 import { DeleteMediaDto } from './dto/delete-media.dto';
 import { AddReactionDto } from './dto/add-reaction.dto';
@@ -69,14 +69,19 @@ export class PostService {
     const items = hasNextPage ? posts.slice(0, limit) : posts
 
     return {
-        items,
-        hasNextPage,
-        cursor: hasNextPage ? items[items.length -1].createdAt : null
-      }
+      items,
+      hasNextPage,
+      cursor: hasNextPage ? items[items.length - 1].createdAt : null
+    };
   }
 
-  findOne(id: string) {
-    return this.postModel.findById(id);
+  async findOne(id: string) {
+    const post = await this.postModel.findById(id);
+    if (!post) {
+      throw new NotFoundException('post not found')
+    }
+    return post;
+
   }
 
   async update(id: string, updatePostDto: UpdatePostDto) {
@@ -96,7 +101,34 @@ export class PostService {
   }
 
 
-  async addReaction(addReactionDto: AddReactionDto, currentUser: IUserPaylod) {
 
+  async addReaction(addReactionDto: AddReactionDto, currentUser: IUserPaylod) {
+    const { postId, reactionType } = addReactionDto;
+    const post = await this.findOne(postId);
+    const existingReaction = await this.reactionService.findExistingReaction(postId, currentUser.id);
+    let oldReactionType: IReactionType | null = null;
+    if (existingReaction) {
+      // Update reaction type
+      if (reactionType === existingReaction.type) return;
+      oldReactionType = existingReaction.type;
+      await this.reactionService.update(existingReaction._id.toString(), reactionType);
+    } else {
+      await this.reactionService.create(addReactionDto, currentUser);
+    }
+    // update post reaction counts
+    const reactionCounts = post.reactionsCount || {};
+    // decrease old reaction count
+    if (existingReaction && oldReactionType) {
+      const currentReactionCountValue = reactionCounts.get(existingReaction?.type) || 0;
+      reactionCounts.set(oldReactionType, currentReactionCountValue - 1 > 0 ? currentReactionCountValue - 1 : 0);
+
+    }
+
+    // increase new reaction count
+    const newReactionCountValue = reactionCounts.get(reactionType) || 0;
+    reactionCounts.set(reactionType, newReactionCountValue + 1);
+
+    post.reactionsCount = reactionCounts;
+    await post.save();
   }
 }

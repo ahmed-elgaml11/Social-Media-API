@@ -12,6 +12,7 @@ import type { IUserPaylod } from 'src/global';
 import { ParseObjectIdPipe } from 'src/_cores/pipes/parse-objectid.pipe';
 import { UploadMediaDto } from './dto/upload-media.dto';
 import { DeleteMediaDto } from './dto/delete-media.dto';
+import { AddReactionDto } from './dto/add-reaction.dto';
 
 
 @UseGuards(AuthGuard, RoleGuard)
@@ -23,6 +24,10 @@ export class PostController {
   @Post()
   create(@Body() createPostDto: CreatePostDto, @CurrentUser() user: IUserPaylod) {
     return this.postService.create(createPostDto, user);
+  }
+  @Post('reaction')
+  addReaction(@Body() addReactionDto: AddReactionDto, @CurrentUser() user: IUserPaylod) {
+    return this.postService.addReaction(addReactionDto, user);
   }
 
   @Get()
