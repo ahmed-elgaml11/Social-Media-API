@@ -45,6 +45,8 @@ export class ResponsePostDto {
     @Expose()
     @Transform(({ obj }) => obj.reactionCounts)
     reactionsCount: Map<IReactionType, number>
+    @Expose()
+    myReaction: IReactionType | null
 
     
     // custom properties 

@@ -65,9 +65,17 @@ export class PostService {
       .sort({ createdAt: -1 })
       .limit(limit + 1);
 
-    const hasNextPage = posts.length > limit
+    const postsWithMyReactions = await Promise.all(posts.map(async (post) => {
+      const existingReaction = await this.reactionService.findExistingReaction(user.id, post._id.toString());
+      return {
+        ...post,
+        myReaction: existingReaction ? existingReaction.type : null
+      }
+    }))
 
-    const items = hasNextPage ? posts.slice(0, limit) : posts
+    const hasNextPage = postsWithMyReactions.length > limit
+
+    const items = hasNextPage ? postsWithMyReactions.slice(0, limit) : postsWithMyReactions
 
     return {
       items,
@@ -76,14 +84,27 @@ export class PostService {
     };
   }
 
-  async findOne(id: string) {
+  private async findOne(id: string) {
     const post = await this.postModel.findById(id);
     if (!post) {
       throw new NotFoundException('post not found')
     }
     return post;
-
   }
+
+  async findOneWithMyReaction(id: string, user: IUserPaylod) {
+    const post = await this.postModel.findById(id).lean();
+    if (!post) {
+      throw new NotFoundException('post not found')
+    }
+
+    const existingReaction = await this.reactionService.findExistingReaction(user.id, post._id.toString());
+    return {
+      ...post,
+      myReaction: existingReaction ? existingReaction.type : null
+    }
+  }
+
 
   async update(id: string, updatePostDto: UpdatePostDto) {
     const post = await this.postModel.findByIdAndUpdate(id, updatePostDto, { new: true });
@@ -106,29 +127,29 @@ export class PostService {
   async addReaction(addReactionDto: AddReactionDto, currentUser: IUserPaylod) {
     const { postId, reactionType } = addReactionDto;
     const post = await this.findOne(postId);
-    const existingReaction = await this.reactionService.findExistingReaction(postId, currentUser.id);
-    let oldReactionType: IReactionType | null = null;
+    const existingReaction = await this.reactionService.findExistingReaction(currentUser.id, postId);
+    if (existingReaction && existingReaction.type === reactionType) return;
+
+    const updateOps: Record<string, number> = {
+      [`reactionsCount.${reactionType}`]: 1
+    }
+
     if (existingReaction) {
       // Update reaction type
-      if (reactionType === existingReaction.type) return;
-      oldReactionType = existingReaction.type;
       await this.reactionService.update(existingReaction._id.toString(), reactionType);
+      updateOps[`reactionsCount.${existingReaction.type}`] = -1
+
     } else {
       await this.reactionService.create(addReactionDto, currentUser);
     }
-    // update post reactioncounts
-    const reactionCounts = post.reactionsCount || {};
-    // decrease old reaction count
-    if (oldReactionType) {
-      const currentReactionCountValue = reactionCounts.get(oldReactionType) || 0;
-      reactionCounts.set(oldReactionType, currentReactionCountValue - 1 > 0 ? currentReactionCountValue - 1 : 0);
-    }
-    // increase new reaction count
-    const newReactionCountValue = reactionCounts.get(reactionType) || 0;
-    reactionCounts.set(reactionType, newReactionCountValue + 1);
 
-    post.reactionsCount = reactionCounts;
-    await post.save();
+    const updatePost = await this.postModel.findByIdAndUpdate(postId, {
+      $inc: updateOps
+    }, { new: true })
+
+
+    return updatePost;
+
   }
 
 
@@ -138,21 +159,14 @@ export class PostService {
     const existingReaction = await this.reactionService.findExistingReaction(postId, currentUser.id);
     if (!existingReaction) return;
 
+
+
     const reactionType = existingReaction.type;
     await this.reactionService.remove(existingReaction._id.toString());
 
-    await this.postModel.findByIdAndUpdate(postId, {
+    const savedPost = await this.postModel.findByIdAndUpdate(postId, {
       $inc: { [`reactionsCount.${reactionType}`]: -1 }
-    })
-    
-
-    // update post reactioncounts
-    const reactionCounts = post.reactionsCount || {};
-    // decrease reaction count
-    const currentReactionCountValue = reactionCounts.get(reactionType) || 0;
-    reactionCounts.set(reactionType, currentReactionCountValue - 1 > 0 ? currentReactionCountValue - 1 : 0);
-    post.reactionsCount = reactionCounts;
-    await post.save();
+    }, { new: true })
   }
 
 

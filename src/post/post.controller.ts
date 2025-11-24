@@ -41,8 +41,8 @@ export class PostController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseObjectIdPipe) id: string) {
-    return this.postService.findOne(id);
+  findOne(@Param('id', ParseObjectIdPipe) id: string, @CurrentUser() user: IUserPaylod) {
+    return this.postService.findOneWithMyReaction(id, user);
   }
 
   @Patch(':id/upload')
