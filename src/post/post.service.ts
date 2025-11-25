@@ -84,7 +84,7 @@ export class PostService {
     };
   }
 
-  private async findOne(id: string) {
+   async findOne(id: string) {
     const post = await this.postModel.findById(id);
     if (!post) {
       throw new NotFoundException('post not found')

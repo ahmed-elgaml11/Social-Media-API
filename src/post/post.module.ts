@@ -11,6 +11,6 @@ import { ReactionModule } from 'src/reaction/reaction.module';
   imports: [MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]), UsersModule, ReactionModule],
   controllers: [PostController],
   providers: [PostService],
-  exports: [MongooseModule]
+  exports: [MongooseModule, PostService],
 })
 export class PostModule {}
