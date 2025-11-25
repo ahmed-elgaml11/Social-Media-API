@@ -9,6 +9,7 @@ import { PostModule } from './post/post.module';
 import { ResourceModule } from './resource/resource.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { ReactionModule } from './reaction/reaction.module';
+import { CommentModule } from './comment/comment.module';
 
 
 @Module({
@@ -28,6 +29,7 @@ import { ReactionModule } from './reaction/reaction.module';
     ResourceModule,
     CloudinaryModule,
     ReactionModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
