@@ -20,6 +20,21 @@ export class User {
 
     @Prop({default: 'user'})
     role: IRole;
+
+    @Prop()
+    bio?: string
+
+    @Prop({default: false})
+    avatar?: boolean
+
+    @Prop()
+    coverPhoto?: string
+
+    @Prop()
+    birthday?: string
+
+    @Prop()
+    phoneNumber?: string
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
