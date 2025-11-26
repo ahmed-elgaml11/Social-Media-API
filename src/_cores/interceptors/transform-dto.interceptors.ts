@@ -30,7 +30,6 @@ export class TrasformToDtoInterceptor<T> implements NestInterceptor {
                             }),
                             hasNextPage,
                             cursor
-
                         }
                     }
                     if (request.path.includes('auth')) {

@@ -18,13 +18,13 @@ export class CommentService {
   ) { }
 
   async create(createCommentDto: CreateCommentDto, user: IUserPaylod) {
-    const { content, postId, repliesToUserId, parentCommentId } = createCommentDto;
+    const { content, postId, repliyToUserId, parentCommentId } = createCommentDto;
     const post = await this.postService.findOne(postId);
     let realParentCommentId: string | null = null;
     let realReplyToUserId: string | null = null;
 
-    if (repliesToUserId) {
-      const replyToUser = await this.userService.findOne(repliesToUserId);
+    if (repliyToUserId) {
+      const replyToUser = await this.userService.findOne(repliyToUserId);
       realReplyToUserId = replyToUser._id.toString();
     }
     if (parentCommentId) {
@@ -33,35 +33,45 @@ export class CommentService {
         throw new NotFoundException('Parent comment not found');
       }
 
-      realParentCommentId = parentComment.parent ? parentComment.parent._id.toString() : parentComment._id.toString();
+      realParentCommentId = parentComment.parent?._id ? parentComment.parent._id.toString() : parentComment._id.toString();
 
-    } 
+    }
 
     const comment = new this.commentModel({
-        content,
-        post: postId,
-        replyToUser: realReplyToUserId,
-        parent: realParentCommentId,
-        user: user.id,
-     })
+      content,
+      post: postId,
+      replyToUser: realReplyToUserId,
+      parent: realParentCommentId,
+      user: user.id,
+    })
 
 
-     return comment.save();
+    return comment.save();
 
   }
 
   async findCommentsByPost(postId: string) {
     const post = await this.postService.findOne(postId);
-    const comments = await this.commentModel.find({ post: postId }).populate('user').populate('replyToUser').lean();
+    const comments = await this.commentModel
+      .find({ post: postId })
+      .populate('user')
+      .populate('replyToUser')
+      .sort({ parent: 1 })
+      .lean();
 
-    let result : any[] = []
+    let finalResult: any[] = []
     for (const comment of comments) {
       if (!comment.parent) {
-        result.push({...comment, replies: []})
-      }else{
-        
+        finalResult.push({ ...comment, replies: [] })
+      } else {
+        const rootComment = finalResult.find(c => c._id.toString() === comment.parent?._id?.toString());
+        if (rootComment) {
+          rootComment.replies.push(comment);
+        }
+
       }
     }
+    return finalResult;
   }
 
   findAll() {
@@ -72,11 +82,23 @@ export class CommentService {
     return `This action returns a #${id} comment`;
   }
 
-  update(id: number, updateCommentDto: UpdateCommentDto) {
-    return `This action updates a #${id} comment`;
+  async update(id: string, updateCommentDto: UpdateCommentDto) {
+    const content = updateCommentDto.content;
+    const comment = await this.commentModel.findByIdAndUpdate(id, { content }, { new: true });
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+    return comment;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} comment`;
+  async remove(id: string) {
+    const comment = await this.commentModel.findByIdAndDelete(id);
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+    if (comment.parent === null) {
+      await this.commentModel.deleteMany({ parent: comment._id });
+    }
+    return comment;
   }
 }

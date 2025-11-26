@@ -6,7 +6,8 @@ import { ResourceService } from 'src/resource/resource.service';
 
 @Injectable()
 export class RoleGuard implements CanActivate {
-    constructor(private reflector: Reflector,
+    constructor(
+        private reflector: Reflector,
         private resourceService: ResourceService
     ) { }
     async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -45,7 +46,7 @@ export class RoleGuard implements CanActivate {
 
     private extractResource(path: string): string | null {
         const exactPath = path.split('/')
-        if (exactPath.length > 3) {
+        if (exactPath.length >= 3) {
             return exactPath[3]
         }
         return null
