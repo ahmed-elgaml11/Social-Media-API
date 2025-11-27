@@ -2,7 +2,8 @@ export interface IUserPaylod {
     id: string,
     name: string,
     email: string,
-    role: IRole
+    role: IRole,
+    isActive: boolean
 }
 
 declare type IRole = 'admin' | 'user'

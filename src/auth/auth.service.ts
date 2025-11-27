@@ -40,11 +40,14 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('Invalid Email Or Password')
     }
+    if(!user.isActive){
+      throw new NotFoundException('no longer active account')
+    }
 
     if (!bcrypt.compare(user.password, password)) {
       throw new NotFoundException('Invalid Email Or Password')
     }
-    const payload = { name: user.name, id: user._id, email: user.email, role: user.role };
+    const payload = { name: user.name, id: user._id, email: user.email, role: user.role, isActive: user.isActive };
 
     const access_token = await this.jwtService.signAsync(payload)
     return { access_token, user };

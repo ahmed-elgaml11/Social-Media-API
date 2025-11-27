@@ -11,4 +11,13 @@ export class ResponseUserDto {
     email: string
     @Expose()
     role: string
+    @Expose()
+    isActive: Date
+    @Expose()
+    birthdate: Date
+    @Expose()
+    phoneNumber: string    
+    @Expose()
+    bio: boolean
+
 }

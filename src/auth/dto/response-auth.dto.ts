@@ -11,4 +11,10 @@ export class ResponseAuthDto {
     email: string
     @Expose()
     role: string
+    @Expose()
+    bio?: string
+    @Expose()
+    birthdate?: string
+    @Expose()
+    phoneNumber?: string
 }

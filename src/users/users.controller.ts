@@ -10,6 +10,7 @@ import { transformToDtoResponse } from 'src/_cores/interceptors/transform-dto.in
 import { ResponseUserDto } from './dto/response-user.dto';
 import { Roles } from 'src/_cores/decorators/role.decorator';
 import { RoleGuard } from 'src/_cores/guards/role.guard';
+import { ParseObjectIdPipe } from 'src/_cores/pipes/parse-objectid.pipe';
 
 
 @UseGuards(AuthGuard, RoleGuard)
@@ -22,13 +23,7 @@ export class UsersController {
   @Roles('admin', 'user')
   @Get('profile')
   getMe(@CurrentUser() currentUser: IUserPaylod) {
-    return currentUser
-  }
-
-  @Roles('admin')
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+    return this.usersService.getMe(currentUser);
   }
 
 
@@ -39,21 +34,21 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseObjectIdPipe) id: string) {
     return this.usersService.findOne(id);
   }
 
   
   @Roles('admin', 'user')
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  update(@Param('id', ParseObjectIdPipe) id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(id, updateUserDto);
   }
 
   
   @Roles('admin', 'user')
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  async remove(@Param('id', ParseObjectIdPipe) id: string) {
+    await this.usersService.remove(id);
   }
 }
