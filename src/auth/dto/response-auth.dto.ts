@@ -17,4 +17,6 @@ export class ResponseAuthDto {
     birthdate?: string
     @Expose()
     phoneNumber?: string
+    @Expose()
+    isActive: boolean
 }

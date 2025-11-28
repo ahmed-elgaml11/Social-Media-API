@@ -7,7 +7,7 @@ export class ResponseUserDto {
     id: string
     @Expose()
     name: string
-     @Expose()
+    @Expose()
     email: string
     @Expose()
     role: string
@@ -16,8 +16,16 @@ export class ResponseUserDto {
     @Expose()
     birthdate: Date
     @Expose()
-    phoneNumber: string    
+    phoneNumber: string
     @Expose()
     bio: boolean
+    @Expose()
+    @Transform(({ obj }) => `https://res.cloudinary.com/${process.env.CLOUDINARY_NAME}/${obj.avatar.resource_type}/upload/${obj.avatar.version}/${obj.avatar.public_id}.${obj.avatar.format}`)
+    avatarUrl: string
+
+    @Expose()
+    @Transform(({ obj }) => `https://res.cloudinary.com/${process.env.CLOUDINARY_NAME}/${obj.coverPhoto.resource_type}/upload/${obj.coverPhoto.version}/${obj.coverPhoto.public_id}.${obj.coverPhoto.format}`)
+    coverPhotoUrl: string
+
 
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, UseInterceptors } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -11,6 +11,7 @@ import { ResponseUserDto } from './dto/response-user.dto';
 import { Roles } from 'src/_cores/decorators/role.decorator';
 import { RoleGuard } from 'src/_cores/guards/role.guard';
 import { ParseObjectIdPipe } from 'src/_cores/pipes/parse-objectid.pipe';
+import { UploadMediaDto } from 'src/_cores/global/dtos';
 
 
 @UseGuards(AuthGuard, RoleGuard)
@@ -27,7 +28,19 @@ export class UsersController {
   }
 
 
-  @Roles('admin')
+
+  @Post('upload-avatar')
+  uploadAvatar(@Body() uploadMediaDto: UploadMediaDto,  @CurrentUser() user: IUserPaylod){
+    return this.usersService.uploadAvatar(user, uploadMediaDto)
+  }
+
+
+  @Post('upload-cover')
+  uploadCoverPhoto(@Body() uploadMediaDto: UploadMediaDto,  @CurrentUser() user: IUserPaylod){
+    return this.usersService.uploadCoverPhoto(user, uploadMediaDto)
+  }
+
+
   @Get()
   findAll() {
     return this.usersService.findAll();

@@ -5,8 +5,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Post } from './schemas/post.schema';
 import { Model } from 'mongoose';
 import { User } from 'src/users/schemas/user.schema';
-import { IReactionType, IUserPaylod } from 'src/global';
-import { UploadMediaDto } from './dto/upload-media.dto';
+import {  IUserPaylod } from 'src/global';
+import { UploadMediaDto } from  '../_cores/global/dtos'
 import { DeleteMediaDto } from './dto/delete-media.dto';
 import { AddReactionDto } from './dto/add-reaction.dto';
 import { ReactionService } from 'src/reaction/reaction.service';

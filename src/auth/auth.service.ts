@@ -14,7 +14,6 @@ export class AuthService {
     private jwtService: JwtService
   ) { }
   async signUp(signUpDto: SignUpDto) {
-    console.log('signUpDto', signUpDto);
 
     const email = await this.userModel.findOne({ email: signUpDto.email });
     if (email) {
@@ -24,7 +23,7 @@ export class AuthService {
     const user = new this.userModel({ ...signUpDto, password: hashPassword });
     const savedUser = await user.save()
 
-    const payload = { name: savedUser.name, id: savedUser._id, email: savedUser.email, role: savedUser.role };
+    const payload = { name: savedUser.name, id: savedUser._id, email: savedUser.email, role: savedUser.role, isActive: savedUser.isActive };
 
     const access_token = await this.jwtService.signAsync(payload)
     return { access_token, user: savedUser };
@@ -41,7 +40,7 @@ export class AuthService {
       throw new NotFoundException('Invalid Email Or Password')
     }
     if(!user.isActive){
-      throw new NotFoundException('no longer active account')
+      throw new BadRequestException('you no longer active')
     }
 
     if (!bcrypt.compare(user.password, password)) {
