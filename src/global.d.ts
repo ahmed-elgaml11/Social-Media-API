@@ -12,6 +12,8 @@ declare type IPrivacy = 'private' | 'public' | 'friends'
 
 declare type IReactionType = 'like' | 'love' | 'haha' | 'wow' | 'happy' | 'angry'
 
+declare type IFriendRequestType = 'accept' | 'reject' | 'pending'
+
 declare global {
   namespace Express {
     interface Request {

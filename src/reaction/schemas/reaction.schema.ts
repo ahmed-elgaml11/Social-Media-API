@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
+import { REACTION_TYPES } from "src/_cores/global/constants";
 import type { IPrivacy, IReactionType } from "src/global";
 import * as postSchema from "src/post/schemas/post.schema";
 import type { UserDocument } from "src/users/schemas/user.schema";
@@ -17,7 +18,7 @@ export class Reaction {
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Post' })
     post: postSchema.PostDocument
 
-    @Prop({enum: ['like', 'love', 'haha', 'wow', 'happy', 'angry'], default: 'like'})
+    @Prop({enum: REACTION_TYPES, default: 'like'})
     type: IReactionType
 }
 

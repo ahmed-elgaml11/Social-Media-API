@@ -10,6 +10,7 @@ import { ResourceModule } from './resource/resource.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { ReactionModule } from './reaction/reaction.module';
 import { CommentModule } from './comment/comment.module';
+import { FriendModule } from './friend/friend.module';
 
 
 @Module({
@@ -30,6 +31,7 @@ import { CommentModule } from './comment/comment.module';
     CloudinaryModule,
     ReactionModule,
     CommentModule,
+    FriendModule,
   ],
   controllers: [AppController],
   providers: [AppService],

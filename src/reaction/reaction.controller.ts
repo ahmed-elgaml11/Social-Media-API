@@ -29,6 +29,6 @@ export class ReactionController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.reactionService.remove(+id);
+    return this.reactionService.remove(id);
   }
 }
