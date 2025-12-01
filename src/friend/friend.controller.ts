@@ -1,6 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpCode } from '@nestjs/common';
 import { FriendService } from './friend.service';
-import { CreateFriendDto } from './dto/create-friend.dto';
 import { UpdateFriendDto } from './dto/update-friend.dto';
 import { CurrentUser } from 'src/_cores/decorators/currentUser.auth.decorator';
 import type { IUserPaylod } from 'src/global';
@@ -12,9 +11,16 @@ import { AuthGuard } from 'src/_cores/guards/auth.guard';
 export class FriendController {
   constructor(private readonly friendService: FriendService) {}
 
+  @HttpCode(200)
   @Post('request/receiverId')
   sendFriendRequest(@CurrentUser() user: IUserPaylod, @Param('receiverId', ParseObjectIdPipe) id: string) {
     return this.friendService.create(user, id);
+  }
+
+  @HttpCode(200)
+  @Post('canel-request/receiverId')
+  cancelFriendRequest(@CurrentUser() user: IUserPaylod, @Param('receiverId', ParseObjectIdPipe) id: string) {
+    return this.friendService.remove(user, id);
   }
 
   @Get()
@@ -32,8 +38,8 @@ export class FriendController {
     return this.friendService.update(+id, updateFriendDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.friendService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.friendService.remove(+id);
+  // }
 }

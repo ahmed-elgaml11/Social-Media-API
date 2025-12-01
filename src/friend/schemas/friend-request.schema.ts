@@ -1,8 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
 import { FRIEND_REQUEST_STATUS } from "src/_cores/global/constants";
-import type { IFriendRequestType, IPrivacy, IReactionType } from "src/global";
-import * as postSchema from "src/post/schemas/post.schema";
+import type { IFriendRequestType } from "src/global";
 import type { UserDocument } from "src/users/schemas/user.schema";
 
 
@@ -18,7 +17,7 @@ export class FriendRequest {
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
     receiver: UserDocument
 
-    @Prop({enum: FRIEND_REQUEST_STATUS, default: 'pending'})
+    @Prop({ enum: FRIEND_REQUEST_STATUS, default: 'pending' })
     status: IFriendRequestType
 }
 

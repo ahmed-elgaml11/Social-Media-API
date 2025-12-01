@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateFriendDto } from './dto/create-friend.dto';
 import { UpdateFriendDto } from './dto/update-friend.dto';
 import { IUserPaylod } from 'src/global';
@@ -16,7 +16,7 @@ export class FriendService {
     const reciever = await this.userService.findOne(receiverId)
 
     if(currentUser.id === receiverId){
-      throw new BadRequestException('not allowed to send friend request to your self')
+      throw new BadRequestException('not allowed to send friend request to yourself')
     }
 
     const existingFriendRequest = await this.friendRequest.findOne({
@@ -37,6 +37,26 @@ export class FriendService {
 
   }
 
+  
+  async remove(currentUser: IUserPaylod, receiverId: string) {
+    const receiver = await this.userService.findOne(receiverId)
+
+    const friendRequest = await this.friendRequest.findOne({
+      sender: currentUser.id,
+      receiver: receiverId,
+      status: 'pending'
+    })
+
+    if(!friendRequest){
+      throw new NotFoundException(' the frind requst is not exist')
+    }
+
+    await this.friendRequest.deleteOne({ _id: friendRequest._id })
+
+
+  }
+
+
   findAll() {
     return `This action returns all friend`;
   }
@@ -49,7 +69,4 @@ export class FriendService {
     return `This action updates a #${id} friend`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} friend`;
-  }
 }
