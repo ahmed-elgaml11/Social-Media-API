@@ -68,4 +68,19 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
   }
+
+
+  async addFriend(userId: string, friendId: string){
+    await this.userModel.findByIdAndUpdate(userId, {
+      $addToSet: {friends: friendId}
+    })
+  }
+
+  async getFriends(userId: string){
+    const user = await this.userModel.findById(userId).populate('friends')
+    if(!user) throw new NotFoundException('user not found')
+
+    return user.friends  
+  }
+
 }
