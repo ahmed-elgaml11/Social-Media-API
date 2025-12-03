@@ -61,9 +61,10 @@ export class PostService {
     const posts = await this.postModel
       .find(query)
       .populate('author')
-      .lean()
       .sort({ createdAt: -1 })
-      .limit(limit + 1);
+      .limit(limit + 1)
+      .lean()
+
 
     const postsWithMyReactions = await Promise.all(posts.map(async (post) => {
       const existingReaction = await this.reactionService.findExistingReaction(user.id, post._id.toString());

@@ -120,16 +120,4 @@ export class FriendService {
   }
 
 
-  findAll() {
-    return `This action returns all friend`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} friend`;
-  }
-
-  update(id: number, updateFriendDto: UpdateFriendDto) {
-    return `This action updates a #${id} friend`;
-  }
-
 }

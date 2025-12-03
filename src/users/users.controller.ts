@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, UseInterceptors, Query, ParseIntPipe, DefaultValuePipe } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -42,8 +42,8 @@ export class UsersController {
 
 
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query() q: string, @Query('limit', new DefaultValuePipe(10), new ParseIntPipe()) limit: number = 10, @Query('cursor') cursor?: string) {
+    return this.usersService.findAll(q, limit, cursor);
   }
 
   @Get(':id')

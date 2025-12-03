@@ -56,7 +56,7 @@ export class CommentService {
       .find({ post: postId })
       .populate('user')
       .populate('replyToUser')
-      .sort({ parent: 1 })
+      .sort({ createdAt: 1 })
       .lean();
 
     let finalResult: any[] = []

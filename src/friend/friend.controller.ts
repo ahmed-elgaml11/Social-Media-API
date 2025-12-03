@@ -48,18 +48,4 @@ export class FriendController {
     return this.friendService.getCurrentFriends(user);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.friendService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFriendDto: UpdateFriendDto) {
-    return this.friendService.update(+id, updateFriendDto);
-  }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.friendService.remove(+id);
-  // }
 }

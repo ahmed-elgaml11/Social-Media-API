@@ -6,7 +6,9 @@ import { IReactionType } from "src/global";
 
 
 class MediaType {
-    @Transform(({ obj }) => `
+    @Transform(({ obj }) => obj.public_id ? `https://res.cloudinary.com/${process.env.CLOUDINARY_NAME}/${obj.avatar.resource_type}/upload/${obj.avatar.version}/${obj.avatar.public_id}.${obj.avatar.format}` : null)
+
+    @Transform(({ obj }) => obj.public_id ? `
      https://res.cloudinary.com/${process.env.CLOUDINARY_NAME}/${obj.resource_type}/upload/${obj.version}/${obj.public_id}.${obj.format}
 `)
     @Expose()
@@ -48,7 +50,7 @@ export class ResponsePostDto {
     @Expose()
     myReaction: IReactionType | null
 
-    
+
     // custom properties 
     @Expose()
     @Transform(({ obj }: { obj: PostDocument }) => obj.author._id)

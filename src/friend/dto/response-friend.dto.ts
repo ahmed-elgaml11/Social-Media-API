@@ -1,4 +1,4 @@
-import { Expose } from "class-transformer"
+import { Expose, Transform } from "class-transformer"
 import { ObjectId } from "src/_cores/decorators/object-id.decorator"
 
 export class ResponseFriendDto {
@@ -10,5 +10,6 @@ export class ResponseFriendDto {
     @Expose()
     email: string
     @Expose()
+    @Transform(({ obj }) => obj.avatar.public_id ? `https://res.cloudinary.com/${process.env.CLOUDINARY_NAME}/${obj.avatar.resource_type}/upload/${obj.avatar.version}/${obj.avatar.public_id}.${obj.avatar.format}` : null)
     avatarUrl: string
 }
