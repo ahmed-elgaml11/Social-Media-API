@@ -9,8 +9,7 @@ class MediaType {
     @Transform(({ obj }) => obj.public_id ? `https://res.cloudinary.com/${process.env.CLOUDINARY_NAME}/${obj.avatar.resource_type}/upload/${obj.avatar.version}/${obj.avatar.public_id}.${obj.avatar.format}` : null)
 
     @Transform(({ obj }) => obj.public_id ? `
-     https://res.cloudinary.com/${process.env.CLOUDINARY_NAME}/${obj.resource_type}/upload/${obj.version}/${obj.public_id}.${obj.format}
-`)
+     https://res.cloudinary.com/${process.env.CLOUDINARY_NAME}/${obj.resource_type}/upload/${obj.version}/${obj.public_id}.${obj.format}` : null)
     @Expose()
     url: string
     @Expose()

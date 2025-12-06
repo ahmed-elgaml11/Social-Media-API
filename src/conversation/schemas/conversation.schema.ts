@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
 import { MediaType } from "src/_cores/global/class";
 import type { MessageDocument } from "src/message/schemas/message.schema";
-import { UserDocument } from "src/users/schemas/user.schema";
+import type { UserDocument } from "src/users/schemas/user.schema";
 
 
 
@@ -13,8 +13,12 @@ export class Conversation {
     @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'User' })
     participants: UserDocument[]
 
+
     @Prop({ type: Boolean, default: false })
     isGroup: boolean
+
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+    groupOwner?: UserDocument
 
     @Prop()
     groupAvatar?: MediaType
@@ -24,6 +28,9 @@ export class Conversation {
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Message' })
     lastMessage?: MessageDocument
+
+    createdAt: Date
+    updatedAt: Date
 }
 
 
