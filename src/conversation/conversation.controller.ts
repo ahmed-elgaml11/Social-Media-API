@@ -6,11 +6,12 @@ import { CurrentUser } from 'src/_cores/decorators/currentUser.auth.decorator';
 import type { IUserPaylod } from 'src/global';
 import { AuthGuard } from 'src/_cores/guards/auth.guard';
 import { CreateGroupConversationDto } from './dto/create-group-conversation.dto';
+import { ParseObjectIdPipe } from 'src/_cores/pipes/parse-objectid.pipe';
 
 @Controller('conversations')
 @UseGuards(AuthGuard)
 export class ConversationController {
-  constructor(private readonly conversationService: ConversationService) {}
+  constructor(private readonly conversationService: ConversationService) { }
   @Post('group')
   createGroup(@Body() createGroupConversationDto: CreateGroupConversationDto, @CurrentUser() currentUser: IUserPaylod) {
     return this.conversationService.createGroup(createGroupConversationDto, currentUser);
@@ -18,7 +19,7 @@ export class ConversationController {
 
 
   @Post('private')
-  createPrivate(@Body() createPrivateConversationDto: CreatePrivateConversationDto, @CurrentUser() currentUser: IUserPaylod ) {
+  createPrivate(@Body() createPrivateConversationDto: CreatePrivateConversationDto, @CurrentUser() currentUser: IUserPaylod) {
     return this.conversationService.createPrivate(createPrivateConversationDto, currentUser);
   }
 
@@ -28,13 +29,13 @@ export class ConversationController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.conversationService.findOne(+id);
+  findOne(@Param('id', ParseObjectIdPipe) id: string) {
+    return this.conversationService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateConversationDto: UpdateConversationDto) {
-    return this.conversationService.update(+id, updateConversationDto);
+    return this.conversationService.update(id, updateConversationDto);
   }
 
   @Delete(':id')
