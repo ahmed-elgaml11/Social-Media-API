@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UpdateConversationDto } from './dto/update-conversation.dto';
 import { CreatePrivateConversationDto } from './dto/create-private-conservation.dto';
 import { IUserPaylod } from 'src/global';
@@ -6,10 +6,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Conversation } from './schemas/conversation.schema';
 import { CreateGroupConversationDto } from './dto/create-group-conversation.dto';
+import { AddParticipantsDto } from './dto/add-participants.dto';
+import { UsersService } from 'src/users/users.service';
+import { UserDocument } from 'src/users/schemas/user.schema';
 
 @Injectable()
 export class ConversationService {
-  constructor(@InjectModel(Conversation.name) private conversationModel: Model<Conversation>) { }
+  constructor(@InjectModel(Conversation.name) private conversationModel: Model<Conversation>,
+    private usersService: UsersService
+  ) { }
 
 
   async createPrivate(createPrivateConversationDto: CreatePrivateConversationDto, currentUser: IUserPaylod) {
@@ -70,11 +75,90 @@ export class ConversationService {
     return conversation;
   }
 
-  update(id: string, updateConversationDto: UpdateConversationDto) {
-    return `This action updates a #${id} conversation`;
+  async update(id: string, updateConversationDto: UpdateConversationDto, currentUser: IUserPaylod) {
+    const conversation = await this.conversationModel.findById(id);
+    if (!conversation) {
+      throw new NotFoundException('Conversation not found');
+    }
+    if (conversation?.groupOwner?._id.toString() !== currentUser.id) {
+      throw new UnauthorizedException('You are not authorized to update this conversation');
+    }
+
+
+    conversation.groupName = updateConversationDto.groupName || conversation.groupName;
+    conversation.groupAvatar = updateConversationDto.groupAvatar || conversation.groupAvatar;
+
+    await conversation.save();
+
+    return conversation;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} conversation`;
+  async addParticipants(id: string, currentUser: IUserPaylod, addParticipantsDto: AddParticipantsDto) {
+    const conversation = await this.conversationModel.findById(id);
+    if (!conversation || !conversation.isGroup) {
+      throw new NotFoundException('Conversation not found');
+    }
+    const { participantIds } = addParticipantsDto
+    if (conversation?.groupOwner?._id.toString() !== currentUser.id) {
+      throw new ForbiddenException('You are not authorized to add participants');
+    }
+
+    const existingParticipantIds = conversation.participants.map((participant) => participant._id.toString());
+
+    const participants: UserDocument[] = [];
+    for (const id of participantIds) {
+      if (!existingParticipantIds.includes(id)) {
+        const user = await this.usersService.findOne(id);
+        participants.push(user);
+      }
+    }
+
+    conversation.participants = [...conversation.participants, ...participants];
+    await conversation.save();
+    return conversation;
+  }
+
+
+
+
+
+
+
+
+  async removeParticipants(id: string, currentUser: IUserPaylod, removeParticipantsDto: AddParticipantsDto) {
+    const conversation = await this.conversationModel.findById(id);
+    if (!conversation || !conversation.isGroup) {
+      throw new NotFoundException('Conversation not found');
+    }
+    const { participantIds } = removeParticipantsDto
+    if (conversation?.groupOwner?._id.toString() !== currentUser.id) {
+      throw new ForbiddenException('You are not authorized to remove participants');
+    }
+
+    if (participantIds.includes(conversation?.groupOwner?._id.toString())) {
+      throw new ForbiddenException('You are not authorized to remove group owner');
+    }
+
+
+    conversation.participants = conversation.participants.filter((participant) => !participantIds.includes(participant._id.toString()));
+    await conversation.save();
+    return conversation;
+  }
+
+
+  async remove(id: string, currentUser: IUserPaylod) {
+    const conversation = await this.conversationModel.findById(id);
+    if (!conversation) {
+      throw new NotFoundException('Conversation not found');
+    }
+
+    if (conversation?.isGroup && conversation?.groupOwner?._id.toString() !== currentUser.id) {
+      throw new ForbiddenException();
+    }
+
+    await conversation.deleteOne();
+
+
+    return conversation;
   }
 }

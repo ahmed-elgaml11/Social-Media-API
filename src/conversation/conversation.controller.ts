@@ -7,6 +7,7 @@ import type { IUserPaylod } from 'src/global';
 import { AuthGuard } from 'src/_cores/guards/auth.guard';
 import { CreateGroupConversationDto } from './dto/create-group-conversation.dto';
 import { ParseObjectIdPipe } from 'src/_cores/pipes/parse-objectid.pipe';
+import { AddParticipantsDto } from './dto/add-participants.dto';
 
 @Controller('conversations')
 @UseGuards(AuthGuard)
@@ -30,16 +31,25 @@ export class ConversationController {
 
   @Get(':id')
   findOne(@Param('id', ParseObjectIdPipe) id: string) {
-    return this.conversationService.findOne(id);
+    return this.conversationService.findOne(id);  
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateConversationDto: UpdateConversationDto) {
-    return this.conversationService.update(id, updateConversationDto);
+  update(@Param('id', ParseObjectIdPipe) id: string, @Body() updateConversationDto: UpdateConversationDto, @CurrentUser() currentUser: IUserPaylod) {
+    return this.conversationService.update(id, updateConversationDto, currentUser);
+  }
+
+  @Patch(':id/add-members')
+  addParticipants(@Param('id', ParseObjectIdPipe) id: string, @Body() addParticipantsDto: AddParticipantsDto, @CurrentUser() currentUser: IUserPaylod) {
+    return this.conversationService.addParticipants(id, currentUser, addParticipantsDto);
+  }
+  @Patch(':id/remove-members')
+  removeParticipants(@Param('id', ParseObjectIdPipe) id: string, @Body() removeParticipantsDto: AddParticipantsDto, @CurrentUser() currentUser: IUserPaylod) {
+    return this.conversationService.removeParticipants(id, currentUser, removeParticipantsDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.conversationService.remove(+id);
+  remove(@Param('id', ParseObjectIdPipe) id: string, @CurrentUser() currentUser: IUserPaylod) {
+    return this.conversationService.remove(id, currentUser);
   }
 }
