@@ -7,6 +7,7 @@ import { UsersModule } from 'src/users/users.module';
   imports: [UsersModule],
   controllers: [ConversationController],
   providers: [ConversationService],
+  exports: [ConversationService]
 })
 export class ConversationModule {}
 

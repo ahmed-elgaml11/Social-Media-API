@@ -121,10 +121,6 @@ export class ConversationService {
 
 
 
-
-
-
-
   async removeParticipants(id: string, currentUser: IUserPaylod, removeParticipantsDto: AddParticipantsDto) {
     const conversation = await this.conversationModel.findById(id);
     if (!conversation || !conversation.isGroup) {
@@ -160,5 +156,11 @@ export class ConversationService {
 
 
     return conversation;
+  }
+
+
+
+  async updateLastMessage(id: string, lastMessageId: string) {
+    await this.conversationModel.findByIdAndUpdate(id, { lastMessage: lastMessageId });
   }
 }

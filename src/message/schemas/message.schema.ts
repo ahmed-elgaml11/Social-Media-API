@@ -26,6 +26,10 @@ export class Message {
 
     @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'User' })
     seenBy?: UserDocument[]
+
+
+    createdAt: Date
+    updatedAt: Date
 }
 
 
