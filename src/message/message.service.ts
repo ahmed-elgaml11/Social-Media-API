@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { SendMessageDto } from './dto/send-message.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -6,11 +6,14 @@ import { Message } from './schemas/message.schema';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { IUserPaylod } from 'src/global';
 import { ConversationService } from 'src/conversation/conversation.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class MessageService {
   constructor(@InjectModel(Message.name) private messageModel: Model<Message>,
-    private conversationService: ConversationService) { }
+    private conversationService: ConversationService,
+    private usersService: UsersService
+  ) { }
 
   async sendMessage(conversationId: string, sendMessageDto: SendMessageDto, currentUser: IUserPaylod) {
     const { text, mediaFiles } = sendMessageDto;
@@ -25,33 +28,73 @@ export class MessageService {
     });
 
     await this.conversationService.updateLastMessage(conversationId, message._id.toString());
-    return message;
 
     // TODO: real time
   }
 
-  async getAllMessages(conversationId: string) {
+  async getAllMessages(conversationId: string, cursor: string, limit: number) {
     const conversation = await this.conversationService.findOne(conversationId);
 
+    const query: Record<string, any> = {
+      conversation: conversationId
+    }
+
+    if (cursor) {
+      query.createdAt = { $gt: new Date(cursor) }
+    }
+
     const messages = await this.messageModel
-    .find({ conversation: conversationId })
-    .populate('sender', 'name avatar')
-    .populate('seenBy', 'name avatar')
-    .sort({ createdAt: 1 })
-    .lean();
+      .find(query)
+      .populate('sender', 'name avatar')
+      .populate('seenBy', 'name avatar')
+      .sort({ createdAt: 1 })
+      .limit(limit + 1)
+      .lean();
 
-    return messages;
+    const hasNextPage = messages.length > limit;
+    const items = hasNextPage ? messages.slice(0, limit) : messages;
+    const nextCursor = messages[messages.length - 1]?.createdAt;
+
+    return { items, nextCursor, hasNextPage };
   }
 
-  findOne(id: string) {
-    return this.messageModel.findById(id);
+  async findOne(id: string) {
+    const message = await this.messageModel.findOne({ _id: id, isDeleted: false });
+    if (!message) {
+      throw new NotFoundException('Message not found');
+    }
+    return message;
   }
 
-  update(id: string, updateMessageDto: UpdateMessageDto) {
+  async update(id: string, updateMessageDto: UpdateMessageDto, currentUser: IUserPaylod) {
+    const message = await this.findOne(id);
+    if (message.sender._id.toString() !== currentUser.id) {
+      throw new ForbiddenException('You are not allowed to update this message');
+    }
     return this.messageModel.findByIdAndUpdate(id, updateMessageDto);
   }
 
-  remove(id: number) {
-    return this.messageModel.findByIdAndDelete(id);
+  async remove(id: string, currentUser: IUserPaylod) {
+    const message = await this.findOne(id);
+    if (message.sender._id.toString() !== currentUser.id) {
+      throw new ForbiddenException('You are not allowed to delete this message');
+    }
+    message.isDeleted = true;
+    await message.save();
+  }
+
+
+
+  async markSeenMessage(id: string, currentUser: IUserPaylod) {
+    const message = await this.findOne(id);
+
+
+    const alreadySeen = message?.seenBy?.some((user) => user._id.toString() === currentUser.id);
+    if (!alreadySeen) {
+      const user = await this.usersService.findOne(currentUser.id);
+      message?.seenBy?.push(user);
+
+      await message.save();
+    }
   }
 }

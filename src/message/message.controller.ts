@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { SendMessageDto } from './dto/send-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
@@ -19,8 +19,8 @@ export class MessageController {
   }
 
   @Get('/conversation/:conversationId')
-  getMessages(@Param('conversationId', ParseObjectIdPipe) conversationId: string) {
-    return this.messageService.getAllMessages(conversationId);
+  getMessages(@Param('conversationId', ParseObjectIdPipe) conversationId: string, @Query('cursor') cursor: string, @Query('limit') limit: number) {
+    return this.messageService.getAllMessages(conversationId, cursor, limit);
   }
 
   @Get(':id')
@@ -28,13 +28,18 @@ export class MessageController {
     return this.messageService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id', ParseObjectIdPipe) id: string, @Body() updateMessageDto: UpdateMessageDto) {
-    return this.messageService.update(id, updateMessageDto);
+  @Patch('/update/:id')
+  update(@Param('id', ParseObjectIdPipe) id: string, @Body() updateMessageDto: UpdateMessageDto, @CurrentUser() currentUser: IUserPaylod) {
+    return this.messageService.update(id, updateMessageDto, currentUser);
+  }
+
+  @Patch(':id/seen')
+  markSeenMessage(@Param('id', ParseObjectIdPipe) id: string, @CurrentUser() currentUser: IUserPaylod) {
+    return this.messageService.markSeenMessage(id, currentUser);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseObjectIdPipe) id: string) {
-    return this.messageService.remove(id);
+  remove(@Param('id', ParseObjectIdPipe) id: string, @CurrentUser() currentUser: IUserPaylod) {
+    return this.messageService.remove(id, currentUser);
   }
 }
