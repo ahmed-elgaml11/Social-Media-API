@@ -26,4 +26,8 @@ export class MessageGateway implements OnGatewayConnection, OnGatewayDisconnect 
     return 'Hello world!';
   }
 
+  async handleNewMessage(data: any){
+
+  }
+
 }

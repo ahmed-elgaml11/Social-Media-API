@@ -7,12 +7,16 @@ import { UpdateMessageDto } from './dto/update-message.dto';
 import { IUserPaylod } from 'src/global';
 import { ConversationService } from 'src/conversation/conversation.service';
 import { UsersService } from 'src/users/users.service';
+import { plainToInstance } from 'class-transformer';
+import { ResponseMessagesDto } from './dto/response-messages.dto';
+import { MessageGateway } from './message.gateway';
 
 @Injectable()
 export class MessageService {
   constructor(@InjectModel(Message.name) private messageModel: Model<Message>,
     private conversationService: ConversationService,
-    private usersService: UsersService
+    private usersService: UsersService,
+    private messageGateway: MessageGateway
   ) { }
 
   async sendMessage(conversationId: string, sendMessageDto: SendMessageDto, currentUser: IUserPaylod) {
@@ -26,8 +30,17 @@ export class MessageService {
       mediaFiles,
       seenBy: [currentUser.id]
     });
+    
+    const newMessage = await this.messageModel.findById(message.id)
+      .populate('sender', 'name avatar')
+      .populate('seenBy', 'name avatar')
 
     await this.conversationService.updateLastMessage(conversationId, message._id.toString());
+
+    const responseMessage = plainToInstance(ResponseMessagesDto, newMessage)
+
+    this.messageGateway.handleNewMessage(responseMessage)
+
 
     // TODO: real time
   }
@@ -92,7 +105,7 @@ export class MessageService {
     const alreadySeen = message?.seenBy?.some((user) => user._id.toString() === currentUser.id);
     if (!alreadySeen) {
       const user = await this.usersService.findOne(currentUser.id);
-      message?.seenBy?.push(user);
+      message?.seenBy?.push(user.id);
 
       await message.save();
     }

@@ -8,9 +8,12 @@ import { AuthGuard } from 'src/_cores/guards/auth.guard';
 import { CreateGroupConversationDto } from './dto/create-group-conversation.dto';
 import { ParseObjectIdPipe } from 'src/_cores/pipes/parse-objectid.pipe';
 import { AddParticipantsDto } from './dto/add-participants.dto';
+import { transformToDtoResponse } from 'src/_cores/interceptors/transform-dto.interceptors';
+import { ResponseConversationDto } from './dto/response-conservation.dto';
 
 @Controller('conversations')
 @UseGuards(AuthGuard)
+@transformToDtoResponse(ResponseConversationDto)
 export class ConversationController {
   constructor(private readonly conversationService: ConversationService) { }
   @Post('group')

@@ -7,9 +7,12 @@ import type { IUserPaylod } from 'src/global';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/_cores/guards/auth.guard';
 import { ParseObjectIdPipe } from 'src/_cores/pipes/parse-objectid.pipe';
+import { transformToDtoResponse } from 'src/_cores/interceptors/transform-dto.interceptors';
+import { ResponseMessagesDto } from './dto/response-messages.dto';
 
 @Controller('messages')
 @UseGuards(AuthGuard)
+@transformToDtoResponse(ResponseMessagesDto)
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
