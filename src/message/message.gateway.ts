@@ -2,6 +2,7 @@ import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect,
 import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MessageService } from './message.service';
+import { ResponseMessagesDto } from './dto/response-messages.dto';
 
 @WebSocketGateway({
   cors: {
@@ -21,13 +22,19 @@ export class MessageGateway implements OnGatewayConnection, OnGatewayDisconnect 
     console.log('Client disconnected:', client.id);
   }
 
-  @SubscribeMessage('message')
-  async handleMessage(@ConnectedSocket() client: Socket, @MessageBody() data: any): Promise<string> {
-    return 'Hello world!';
+  @SubscribeMessage('join_room')
+  async handleJoinRoom(@ConnectedSocket() client: Socket, @MessageBody() conversationId: string) {
+    await client.join(conversationId);
   }
 
-  async handleNewMessage(data: any){
-
+  async handleNewMessage(conversationId: string, data: ResponseMessagesDto){
+    this.server.to(conversationId).emit('new_message', data);
+  }
+  async handleUpdateMessage(conversationId: string, data: ResponseMessagesDto){
+    this.server.to(conversationId).emit('update_message', data);
+  }
+  async handleDeleteMessage(conversationId: string, messageId: string){
+    this.server.to(conversationId).emit('delete_message', messageId);
   }
 
 }

@@ -21,7 +21,7 @@ export class MessageService {
 
   async sendMessage(conversationId: string, sendMessageDto: SendMessageDto, currentUser: IUserPaylod) {
     const { text, mediaFiles } = sendMessageDto;
-    const conversation = this.conversationService.findOne(conversationId);
+    const conversation = await this.conversationService.findOne(conversationId);
 
     const message = await this.messageModel.create({
       conversation: conversationId,
@@ -37,12 +37,11 @@ export class MessageService {
 
     await this.conversationService.updateLastMessage(conversationId, message._id.toString());
 
-    const responseMessage = plainToInstance(ResponseMessagesDto, newMessage)
+    const responseMessage = plainToInstance(ResponseMessagesDto, newMessage, {
+      excludeExtraneousValues: true
+    })
 
-    this.messageGateway.handleNewMessage(responseMessage)
-
-
-    // TODO: real time
+    this.messageGateway.handleNewMessage(conversationId, responseMessage)
   }
 
   async getAllMessages(conversationId: string, cursor: string, limit: number) {
@@ -84,7 +83,20 @@ export class MessageService {
     if (message.sender._id.toString() !== currentUser.id) {
       throw new ForbiddenException('You are not allowed to update this message');
     }
-    return this.messageModel.findByIdAndUpdate(id, updateMessageDto);
+    const updatedMessage = await this.messageModel.findByIdAndUpdate(message.id, updateMessageDto);
+
+    const newMessage = await this.messageModel.findById(updatedMessage?.id)
+      .populate('sender', 'name avatar')
+      .populate('seenBy', 'name avatar')
+
+    const responseMessage = plainToInstance(ResponseMessagesDto, newMessage, {
+      excludeExtraneousValues: true
+    })
+
+    this.messageGateway.handleUpdateMessage(message.conversation._id.toString(), responseMessage)
+
+
+
   }
 
   async remove(id: string, currentUser: IUserPaylod) {
@@ -93,7 +105,8 @@ export class MessageService {
       throw new ForbiddenException('You are not allowed to delete this message');
     }
     message.isDeleted = true;
-    await message.save();
+    const deletedMessage = await message.save();
+    this.messageGateway.handleDeleteMessage(message.conversation._id.toString(), message._id.toString())
   }
 
 
