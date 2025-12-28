@@ -121,6 +121,8 @@ export class MessageService {
       message?.seenBy?.push(user.id);
 
       await message.save();
+
+      this.messageGateway.handleSeenMessage(message.conversation._id.toString(), message._id.toString(), currentUser.id.toString())
     }
   }
 }
