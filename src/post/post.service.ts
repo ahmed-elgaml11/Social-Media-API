@@ -11,6 +11,9 @@ import { DeleteMediaDto } from './dto/delete-media.dto';
 import { AddReactionDto } from './dto/add-reaction.dto';
 import { ReactionService } from 'src/reaction/reaction.service';
 import { RemoveReactionDto } from './dto/remove-reaction.dto';
+import { plainToInstance } from 'class-transformer';
+import { ResponsePostDto } from './dto/response-post.dto';
+import { PostGateway } from './post.gateway';
 
 @Injectable()
 export class PostService {
@@ -18,6 +21,7 @@ export class PostService {
     @InjectModel(Post.name) private postModel: Model<Post>,
     @InjectModel(User.name) private userModel: Model<User>,
     private readonly reactionService: ReactionService,
+    private readonly postGateway: PostGateway,
   ) { }
 
   async create(createPostDto: CreatePostDto, user: IUserPaylod) {
@@ -25,7 +29,10 @@ export class PostService {
       ...createPostDto,
       author: user
     })
-    return post.save();
+    const savedPost = await post.save();
+    const responsePost = plainToInstance(ResponsePostDto, savedPost);
+    this.postGateway.handlePostCreate(responsePost);
+    return responsePost;
   }
 
   async uploadMedia(id: string, uploadMediaDtos: UploadMediaDto[]) {
@@ -36,7 +43,10 @@ export class PostService {
     uploadMediaDtos.forEach(media => {
       post.mediaFiles.push(media)
     });
+
     await post.save()
+
+    this.postGateway.handleUploadMedia(post._id.toString(), uploadMediaDtos);
   }
 
   async removeMedia(id: string, deleteMediaDto: DeleteMediaDto) {
@@ -46,6 +56,8 @@ export class PostService {
     }
     post.mediaFiles = post.mediaFiles.filter((media) => media.public_id !== deleteMediaDto.mediaId)
     await post.save()
+
+    this.postGateway.handleRemoveMedia(post._id.toString(), deleteMediaDto);
   }
 
 

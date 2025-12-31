@@ -6,11 +6,12 @@ import { User } from 'src/users/schemas/user.schema';
 import { Post, PostSchema } from './schemas/post.schema';
 import { UsersModule } from 'src/users/users.module';
 import { ReactionModule } from 'src/reaction/reaction.module';
+import { PostGateway } from './post.gateway';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]), UsersModule, ReactionModule],
   controllers: [PostController],
-  providers: [PostService],
+  providers: [PostService, PostGateway],
   exports: [MongooseModule, PostService],
 })
 export class PostModule {}
