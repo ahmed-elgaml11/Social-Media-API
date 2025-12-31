@@ -10,6 +10,7 @@ import { UsersService } from 'src/users/users.service';
 import { plainToInstance } from 'class-transformer';
 import { ResponseMessagesDto } from './dto/response-messages.dto';
 import { MessageGateway } from './message.gateway';
+import { ResponseUserDto } from 'src/users/dto/response-user.dto';
 
 @Injectable()
 export class MessageService {
@@ -30,7 +31,7 @@ export class MessageService {
       mediaFiles,
       seenBy: [currentUser.id]
     });
-    
+
     const newMessage = await this.messageModel.findById(message.id)
       .populate('sender', 'name avatar')
       .populate('seenBy', 'name avatar')
@@ -118,11 +119,19 @@ export class MessageService {
     const alreadySeen = message?.seenBy?.some((user) => user._id.toString() === currentUser.id);
     if (!alreadySeen) {
       const user = await this.usersService.findOne(currentUser.id);
+      const responseUser = plainToInstance(ResponseUserDto, user, {
+        excludeExtraneousValues: true
+      })
       message?.seenBy?.push(user.id);
 
       await message.save();
-
-      this.messageGateway.handleSeenMessage(message.conversation._id.toString(), message._id.toString(), currentUser.id.toString())
+      this.messageGateway.handleSeenMessage(message.conversation._id.toString(), message._id.toString(),
+        {
+          userId: responseUser.id,
+          userName: responseUser.name,
+          userAvatar: responseUser.avatarUrl
+        }
+      )
     }
   }
 }

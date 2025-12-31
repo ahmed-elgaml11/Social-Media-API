@@ -36,9 +36,9 @@ export class MessageGateway implements OnGatewayConnection, OnGatewayDisconnect 
   async handleDeleteMessage(conversationId: string, messageId: string){
     this.server.to(conversationId).emit('delete_message', messageId);
   }
-  async handleSeenMessage(conversationId: string, messageId: string, userId: string){
-    this.server.to(conversationId).emit('seen_message', { messageId, userId });
+  async handleSeenMessage(conversationId: string, messageId: string, userData: {}){
+    this.server.to(conversationId).emit('seen_message', {messageId, userData});
   }
 
-
+z
 }
