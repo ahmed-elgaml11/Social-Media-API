@@ -31,4 +31,21 @@ export class PostGateway {
   handleRemoveMedia(postId: string, deleteMediaDto: DeleteMediaDto) {
     this.server.emit('post_remove_media', { postId, mediaId: deleteMediaDto.mediaId });
   }
+
+
+  handlePostUpdate(data: {postId: string, backgroundColor: string, content: string, privacy: string}) {
+    this.server.emit('post_update', data);
+  }
+
+  handlePostRemove(postId: string) {  
+    this.server.emit('post_remove', { postId });
+  }
+
+  handleAddReaction(post: ResponsePostDto) {
+    this.server.emit('post_add_reaction', post);
+  }
+
+  handleRemoveReaction(post: ResponsePostDto) {
+    this.server.emit('post_remove_reaction', post);
+  }
 }

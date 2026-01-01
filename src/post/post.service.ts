@@ -124,6 +124,9 @@ export class PostService {
     if (!post) {
       throw new NotFoundException('post not found')
     }
+
+     this.postGateway.handlePostUpdate({postId: post._id.toString(), backgroundColor: post.backgroundColor, content: post.content, privacy: post.privacy});
+
     return post
   }
 
@@ -132,6 +135,7 @@ export class PostService {
     if (!post) {
       throw new NotFoundException('post not found')
     }
+    this.postGateway.handlePostRemove(post._id.toString());
     return post
   }
 
@@ -156,12 +160,17 @@ export class PostService {
       await this.reactionService.create(addReactionDto, currentUser);
     }
 
-    const updatePost = await this.postModel.findByIdAndUpdate(postId, {
+    const updatedPost = await this.postModel.findByIdAndUpdate(postId, {
       $inc: updateOps
-    }, { new: true })
+    }, { new: true }) 
+
+    const responsePost = plainToInstance(ResponsePostDto, updatedPost, {
+      excludeExtraneousValues: true,
+    });
+    this.postGateway.handleAddReaction(responsePost);
 
 
-    return updatePost;
+    return updatedPost;
 
   }
 
@@ -183,12 +192,8 @@ export class PostService {
   }
 
 
-
-
-
-
-
-
-
-
+  async findReactions(postId: string) {
+    const post = await this.findOne(postId);
+    return this.reactionService.findPostReactions(postId);
+  }
 }

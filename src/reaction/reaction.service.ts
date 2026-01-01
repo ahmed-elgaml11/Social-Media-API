@@ -45,4 +45,9 @@ export class ReactionService {
   findExistingReaction(userId: string, postId: string) {
     return this.reactionModel.findOne({ user: userId, post: postId });
   }
+
+  findPostReactions(postId: string) {
+    return this.reactionModel.find({ post: postId }).populate('user', 'name avatar');
+  }
+
 }
