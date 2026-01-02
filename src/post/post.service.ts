@@ -189,6 +189,13 @@ export class PostService {
     const savedPost = await this.postModel.findByIdAndUpdate(postId, {
       $inc: { [`reactionsCount.${reactionType}`]: -1 }
     }, { new: true })
+
+    const responsePost = plainToInstance(ResponsePostDto, savedPost, {
+      excludeExtraneousValues: true,
+    });
+    this.postGateway.handleRemoveReaction(responsePost);
+
+    return savedPost;
   }
 
 
