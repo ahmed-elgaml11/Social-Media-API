@@ -27,6 +27,12 @@ export class Comment {
     @Prop({ type: String, required: true })
     content: string
 
+    @Prop({ type: Date, default: Date.now })
+    createdAt: Date
+
+    @Prop({ type: Date, default: Date.now })
+    updatedAt: Date
+
 }
 
 
