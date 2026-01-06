@@ -27,4 +27,4 @@ export class CommentGateway {
   handleCommentRemove(id: string, parentId: string | undefined) {
     this.server.emit('comment_removed', { id, parentId });
   }
-}
+}     
