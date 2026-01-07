@@ -13,6 +13,7 @@ import { CommentModule } from './comment/comment.module';
 import { FriendModule } from './friend/friend.module';
 import { ConversationModule } from './conversation/conversation.module';
 import { MessageModule } from './message/message.module';
+import { NotificationModule } from './notification/notification.module';
 
 
 @Module({
@@ -36,6 +37,7 @@ import { MessageModule } from './message/message.module';
     FriendModule,
     ConversationModule,
     MessageModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

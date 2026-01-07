@@ -19,11 +19,18 @@ export class FriendGateway {
   
 
   handleSendFriendRequest(receiverId: string, data: ResponseFriendRequestDto) {
-    this.server.to(receiverId).emit('friendRequest', data);
+    this.server.to(receiverId).emit('send_friend_request', data);
   }
 
   handleAcceptFriendRequest(data: any) {
-    this.server.to(data.receiverId).emit('acceptFriendRequest', data);
+    this.server.to(data.senderId).emit('accept_friend_request', data);
   }
 
+  handleRejectFriendRequest(friendRequestId: string, senderId: string) {
+    this.server.to(senderId).emit('reject_friend_request', friendRequestId);
+  }
+
+  handleCancelFriendRequest(receiverId: string, senderId: string, friendRequestId: string) {
+    this.server.to(receiverId).emit('cancel_friend_request', {senderId, friendRequestId});
+  }
 }     

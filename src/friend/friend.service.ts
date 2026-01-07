@@ -65,6 +65,8 @@ export class FriendService {
 
     await this.friendRequestModel.deleteOne({ _id: friendRequest._id })
 
+    this.FriendGateway.handleCancelFriendRequest(receiverId, friendRequest.sender._id.toString(), friendRequest._id.toString())
+
 
   }
 
@@ -103,7 +105,7 @@ export class FriendService {
       excludeExtraneousValues: true
     })
 
-    this.FriendGateway.handleAcceptFriendRequest({friendRequestId, receiverId: friendRequest.receiver._id.toString(), _id: responseFriendRequest.senderId, name: responseFriendRequest.senderName, avatarUrl: responseFriendRequest.senderAvatarUrl})
+    this.FriendGateway.handleAcceptFriendRequest({friendRequestId, senderId: friendRequest.sender._id.toString(), receiverId: friendRequest.receiver._id.toString(), receiverName: friendRequest.receiver.name, receiverAvatarUrl: friendRequest.receiver.avatar})
     return friendRequest
   }
 
@@ -120,6 +122,10 @@ export class FriendService {
     }
     friendRequest.status = 'reject'
     await friendRequest.save()
+
+
+    this.FriendGateway.handleRejectFriendRequest(friendRequestId, friendRequest.sender._id.toString())
+
   }
 
 

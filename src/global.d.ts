@@ -14,6 +14,8 @@ declare type IReactionType = 'like' | 'love' | 'haha' | 'wow' | 'happy' | 'angry
 
 declare type IFriendRequestType = 'accept' | 'reject' | 'pending'
 
+declare type INotificationType = 'friend_request' | 'comment' | 'like'
+
 declare global {
   namespace Express {
     interface Request {
