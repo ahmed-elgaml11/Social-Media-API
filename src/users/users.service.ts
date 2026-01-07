@@ -104,7 +104,7 @@ export class UsersService {
     const user = await this.userModel.findById(userId).populate('friends')
     if (!user) throw new NotFoundException('user not found')
 
-    return user.friends
+    return user?.friends
   }
 
 }

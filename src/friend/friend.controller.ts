@@ -5,15 +5,16 @@ import { CurrentUser } from 'src/_cores/decorators/currentUser.auth.decorator';
 import type { IUserPaylod } from 'src/global';
 import { ParseObjectIdPipe } from 'src/_cores/pipes/parse-objectid.pipe';
 import { AuthGuard } from 'src/_cores/guards/auth.guard';
-import { ResponseFriendDto } from './dto/response-friend.dto';
 import { transformToDtoResponse } from 'src/_cores/interceptors/transform-dto.interceptors';
+import { ResponseFriendRequestDto } from './dto/response-friend-request.dto';
+import { ResponseFriendDto } from './dto/response-friend.dto ';
 
 @Controller('friends')
 @UseGuards(AuthGuard)
-@transformToDtoResponse(ResponseFriendDto)
 export class FriendController {
   constructor(private readonly friendService: FriendService) {}
 
+  @transformToDtoResponse(ResponseFriendRequestDto)
   @HttpCode(200)
   @Post('request/:receiverId')
   sendFriendRequest(@CurrentUser() user: IUserPaylod, @Param('receiverId', ParseObjectIdPipe) id: string) {
@@ -39,11 +40,13 @@ export class FriendController {
   }
 
   @Get('request-pending')
+  @transformToDtoResponse(ResponseFriendRequestDto)
   getCurrentPendingRequest(@CurrentUser() user: IUserPaylod) {
     return this.friendService.getCurrentPendingRequest(user);
   }
 
   @Get()
+  @transformToDtoResponse(ResponseFriendDto)
   getCurrentFriends(@CurrentUser() user: IUserPaylod) {
     return this.friendService.getCurrentFriends(user);
   }

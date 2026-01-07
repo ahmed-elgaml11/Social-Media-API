@@ -1,7 +1,7 @@
 import { Expose, Transform } from "class-transformer"
 import { ObjectId } from "src/_cores/decorators/object-id.decorator"
 
-export class ResponseFriendDto {
+export class ResponseFriendRequestDto {
     @Expose()
     @ObjectId()
     _id: string
