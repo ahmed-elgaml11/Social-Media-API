@@ -17,7 +17,7 @@ export class Notification {
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
     receiver: UserDocument
 
-    @Prop({ enum: NOTIFICATION_TYPES })
+    @Prop({ enum: NOTIFICATION_TYPES }) 
     type : INotificationType
 
     @Prop()

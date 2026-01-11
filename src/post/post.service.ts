@@ -14,6 +14,7 @@ import { RemoveReactionDto } from './dto/remove-reaction.dto';
 import { plainToInstance } from 'class-transformer';
 import { ResponsePostDto } from './dto/response-post.dto';
 import { PostGateway } from './post.gateway';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class PostService {
@@ -22,6 +23,7 @@ export class PostService {
     @InjectModel(User.name) private userModel: Model<User>,
     private readonly reactionService: ReactionService,
     private readonly postGateway: PostGateway,
+    private readonly notificationService: NotificationService
   ) { }
 
   async create(createPostDto: CreatePostDto, user: IUserPaylod) {

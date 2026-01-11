@@ -1,26 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
-
+import type { INotificationType } from 'src/global';
+import { Notification } from './schemas/notification.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+ 
 @Injectable()
 export class NotificationService {
-  create(createNotificationDto: CreateNotificationDto) {
-    return 'This action adds a new notification';
-  }
+
+  constructor(@InjectModel(Notification.name) private readonly notificationModel: Model<Notification>) {}
+
+  async create(senderId: string, receiverId: string, type: INotificationType, content: string, linkToId: string) {
+    const notification = await this.notificationModel.create({ senderId, receiverId, type, content, linkToId });
+
+    // real time notification
+   }
 
   findAll() {
-    return `This action returns all notification`;
+    return this.notificationModel.find().exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} notification`;
+  findOne(id: string) {
+    return this.notificationModel.findById(id).exec();
   }
 
-  update(id: number, updateNotificationDto: UpdateNotificationDto) {
-    return `This action updates a #${id} notification`;
+  update(id: string, updateNotificationDto: UpdateNotificationDto) {
+    return this.notificationModel.updateOne({ _id: id }, updateNotificationDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} notification`;
+  remove(id: string) {
+    return this.notificationModel.deleteOne({ _id: id });
   }
 }
