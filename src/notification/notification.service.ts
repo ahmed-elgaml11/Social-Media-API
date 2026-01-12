@@ -12,13 +12,14 @@ export class NotificationService {
   constructor(@InjectModel(Notification.name) private readonly notificationModel: Model<Notification>) {}
 
   async create(senderId: string, receiverId: string, type: INotificationType, content: string, linkToId: string) {
-    const notification = await this.notificationModel.create({ senderId, receiverId, type, content, linkToId });
+    const notification = await this.notificationModel.create({ sender: senderId, receiver: receiverId, type, content, linkToId });
 
     // real time notification
+    
    }
 
-  findAll() {
-    return this.notificationModel.find().exec();
+  findAll(id: string) {
+    return this.notificationModel.find({ receiver: id }).populate('sender', 'name avatar').sort({ createdAt: -1 });
   }
 
   findOne(id: string) {

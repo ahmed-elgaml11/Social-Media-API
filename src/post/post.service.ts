@@ -172,7 +172,11 @@ export class PostService {
     this.postGateway.handleAddReaction(responsePost);
 
 
-    return updatedPost;
+    // send notification
+    const notificationContent = `${currentUser.name} ${reactionType} to your post`
+   await this.notificationService.create(currentUser.id, post.author._id.toString(), 'reaction', notificationContent, postId);
+
+
 
   }
 
