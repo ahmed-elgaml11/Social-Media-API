@@ -15,12 +15,13 @@ import { plainToInstance } from 'class-transformer';
 import { ResponsePostDto } from './dto/response-post.dto';
 import { PostGateway } from './post.gateway';
 import { NotificationService } from 'src/notification/notification.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class PostService {
   constructor(
     @InjectModel(Post.name) private postModel: Model<Post>,
-    @InjectModel(User.name) private userModel: Model<User>,
+    private readonly userService: UsersService,
     private readonly reactionService: ReactionService,
     private readonly postGateway: PostGateway,
     private readonly notificationService: NotificationService
@@ -67,7 +68,17 @@ export class PostService {
 
   async findAll(user: IUserPaylod, limit: number, cursor?: string) {
 
-    const query: Record<string, object> = {}
+    const currentUser = await this.userService.findOne(user.id);
+    const friendsIds = currentUser?.friends.map((friend) => friend._id.toString());
+
+
+    const query: Record<string, object> = {
+      $or: [
+        { privacy: 'public' },
+        { privacy: 'friends', author: { $in: friendsIds } },
+        { privacy: 'private', author: user.id }
+      ]
+    }
     if (cursor) {
       query.createdAt = { $lt: new Date(cursor) }
     }
