@@ -22,7 +22,7 @@ export class MessageGateway implements OnGatewayConnection, OnGatewayDisconnect 
     console.log('Client disconnected:', client.id);
   }
 
-  @SubscribeMessage('join_room')
+  @SubscribeMessage('join')
   async handleJoinRoom(@ConnectedSocket() client: Socket, @MessageBody() conversationId: string) {
     await client.join(conversationId);
   }

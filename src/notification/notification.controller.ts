@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import type { IUserPaylod } from 'src/global';
@@ -15,12 +15,17 @@ export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
   @Get()
-  findAll(@CurrentUser() user: IUserPaylod) {
-    return this.notificationService.findAll(user.id);
+  findAll(@CurrentUser() user: IUserPaylod, @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number, @Query('cursor') cursor?: string) {
+    return this.notificationService.findAll(user.id, limit, cursor);
   }
   
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateNotificationDto: UpdateNotificationDto) {
-    return this.notificationService.update(id, updateNotificationDto);
+  @Patch(':id/read')
+  markAsRead(@Param('id') id: string) {
+    return this.notificationService.markAsRead(id);
   }
-}
+
+  @Patch('/read-all')
+  markAllAsRead(@CurrentUser() user: IUserPaylod) {
+    return this.notificationService.markAllAsRead(user.id);
+  }
+} 

@@ -12,7 +12,7 @@ import { ResponseFriendRequestDto } from './dto/response-friend-request.dto';
 export class FriendService {
   constructor(@InjectModel(FriendRequest.name) private friendRequestModel: Model<FriendRequest>,
     private readonly userService: UsersService,
-    private readonly FriendGateway: FriendGateway
+    private readonly friendGateway: FriendGateway
   ) { }
   async create(currentUser: IUserPaylod, receiverId: string) {
     const reciever = await this.userService.findOne(receiverId)
@@ -44,7 +44,7 @@ export class FriendService {
       excludeExtraneousValues: true
     })
 
-    this.FriendGateway.handleSendFriendRequest(receiverId, responseFriendRequeest)
+    this.friendGateway.handleSendFriendRequest(receiverId, responseFriendRequeest)
     return responseFriendRequeest
 
   }
@@ -65,7 +65,7 @@ export class FriendService {
 
     await this.friendRequestModel.deleteOne({ _id: friendRequest._id })
 
-    this.FriendGateway.handleCancelFriendRequest(receiverId, friendRequest.sender._id.toString(), friendRequest._id.toString())
+    this.friendGateway.handleCancelFriendRequest(receiverId, friendRequest.sender._id.toString(), friendRequest._id.toString())
 
 
   }
@@ -105,7 +105,7 @@ export class FriendService {
       excludeExtraneousValues: true
     })
 
-    this.FriendGateway.handleAcceptFriendRequest({friendRequestId, senderId: friendRequest.sender._id.toString(), receiverId: friendRequest.receiver._id.toString(), receiverName: friendRequest.receiver.name, receiverAvatarUrl: friendRequest.receiver.avatar})
+    this.friendGateway.handleAcceptFriendRequest({friendRequestId, senderId: friendRequest.sender._id.toString(), receiverId: friendRequest.receiver._id.toString(), receiverName: friendRequest.receiver.name, receiverAvatarUrl: friendRequest.receiver.avatar})
     return friendRequest
   }
 
@@ -124,7 +124,7 @@ export class FriendService {
     await friendRequest.save()
 
 
-    this.FriendGateway.handleRejectFriendRequest(friendRequestId, friendRequest.sender._id.toString())
+    this.friendGateway.handleRejectFriendRequest(friendRequestId, friendRequest.sender._id.toString())
 
   }
 
