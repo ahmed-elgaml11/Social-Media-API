@@ -6,12 +6,14 @@ import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { SignInDto } from './dto/sign-in.dto';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private userService: UsersService
   ) { }
   async signUp(signUpDto: SignUpDto) {
 
@@ -23,10 +25,18 @@ export class AuthService {
     const user = new this.userModel({ ...signUpDto, password: hashPassword });
     const savedUser = await user.save()
 
-    const payload = { name: savedUser.name, id: savedUser._id, email: savedUser.email, role: savedUser.role, isActive: savedUser.isActive };
+    const payload = { 
+      name: savedUser.name, 
+      id: savedUser._id, 
+      email: savedUser.email, 
+      role: savedUser.role, 
+      isActive: savedUser.isActive 
+    };
 
     const access_token = await this.jwtService.signAsync(payload)
-    return { access_token, user: savedUser };
+
+    const responseUser = this.userService.getCurrentUser(savedUser._id.toString());
+    return { access_token, user: responseUser };
 
   }
 
@@ -46,7 +56,13 @@ export class AuthService {
     if (!bcrypt.compare(user.password, password)) {
       throw new NotFoundException('Invalid Email Or Password')
     }
-    const payload = { name: user.name, id: user._id, email: user.email, role: user.role, isActive: user.isActive };
+    const payload = { 
+      name: user.name, 
+      id: user._id, 
+      email: user.email, 
+      role: user.role, 
+      isActive: user.isActive 
+    };
 
     const access_token = await this.jwtService.signAsync(payload)
     return { access_token, user };

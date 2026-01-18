@@ -20,11 +20,10 @@ import { UploadMediaDto } from 'src/_cores/global/dtos';
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
-
   @Roles('admin', 'user')
   @Get('profile')
   getMe(@CurrentUser() currentUser: IUserPaylod) {
-    return this.usersService.getMe(currentUser);
+    return this.usersService.getCurrentUser(currentUser.id);
   }
 
 
@@ -42,8 +41,8 @@ export class UsersController {
 
 
   @Get()
-  findAll(@Query() q: string, @Query('limit', new DefaultValuePipe(10), new ParseIntPipe()) limit: number = 10, @Query('cursor') cursor?: string) {
-    return this.usersService.findAll(q, limit, cursor);
+  findAll(@CurrentUser() currentUser: IUserPaylod, @Query() q: string, @Query('limit', new DefaultValuePipe(10), new ParseIntPipe()) limit: number = 10, @Query('cursor') cursor?: string) {
+    return this.usersService.findAll(currentUser, q, limit, cursor);
   }
 
   @Get(':id')

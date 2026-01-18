@@ -24,6 +24,8 @@ export class ResponseUserDto {
     avatarUrl: string
 
     @Expose()
+    isFriend: boolean
+    @Expose()
     @Transform(({ obj }) => obj.coverPhoto.public_id ? `https://res.cloudinary.com/${process.env.CLOUDINARY_NAME}/${obj.coverPhoto.resource_type}/upload/${obj.coverPhoto.version}/${obj.coverPhoto.public_id}.${obj.coverPhoto.format}` : null)
     coverPhotoUrl: string
 

@@ -12,7 +12,7 @@ export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
-  async findAll(q: string, limit: number, cursor?: string ) {
+  async findAll(currentUser: IUserPaylod, q: string, limit: number, cursor?: string ) {
     const query: Record<string, any> = { isActive: true }
     if (q) {
       query.$or = [
@@ -23,6 +23,13 @@ export class UsersService {
     if (cursor) {
       query.email = { $gt: cursor  }
     } 
+
+    const user = await this.getCurrentUser(currentUser.id)
+    const friendsIds = new Set((user?.friends || []).map((friend) => friend._id.toString())) 
+
+
+
+
     const users = await this.userModel
       .find(query)
       .sort({ email: 1 })
@@ -31,7 +38,10 @@ export class UsersService {
 
     const hasNextPage = users.length > limit
 
-    const items = hasNextPage ? users.slice(0, limit) : users
+    const items = (hasNextPage ? users.slice(0, limit) : users).map((user) => ({
+      ...user,
+      isFriend: friendsIds.has(user._id.toString())
+    }))
 
     return {
       items,
@@ -41,9 +51,6 @@ export class UsersService {
   }
 
 
-  getMe(currentUser: IUserPaylod) {
-    return this.userModel.findOne({ _id: currentUser.id, isActive: true })
-  }
 
 
   async uploadAvatar(currentUser: IUserPaylod, uploadMediaDto: UploadMediaDto) {
@@ -105,6 +112,12 @@ export class UsersService {
     if (!user) throw new NotFoundException('user not found')
 
     return user?.friends
+  }
+
+  getCurrentUser(id: string) {
+    const user = this.userModel.findOne({ _id: id, isActive: true })
+    if (!user) throw new NotFoundException('user not found')
+    return user
   }
 
 }

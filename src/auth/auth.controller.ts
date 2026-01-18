@@ -2,13 +2,11 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@n
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { transformToDtoResponse } from 'src/_cores/interceptors/transform-dto.interceptors';
-import { ResponseAuthDto } from './dto/response-auth.dto';
-import { AuthGuard } from 'src/_cores/guards/auth.guard';
+import { ResponseUserDto } from 'src/users/dto/response-user.dto';
 
 
 
-// @UseGuards(AuthGuard)
-@transformToDtoResponse(ResponseAuthDto)
+@transformToDtoResponse(ResponseUserDto)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
