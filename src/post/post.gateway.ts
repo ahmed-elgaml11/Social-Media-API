@@ -28,6 +28,11 @@ export class PostGateway {
     this.server.emit('post_upload_media', { postId, mediaFiles: uploadMediaDtos });
   }
 
+  handleReplacedMedia(postId: string, uploadMediaDtos: UploadMediaDto[]){
+    this.server.emit('post_replace_media', { postId, mediaFiles: uploadMediaDtos });
+
+  }
+
   handleRemoveMedia(postId: string, deleteMediaDto: DeleteMediaDto) {
     this.server.emit('post_remove_media', { postId, mediaId: deleteMediaDto.mediaId });
   }

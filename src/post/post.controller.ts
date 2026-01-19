@@ -61,6 +61,11 @@ export class PostController {
   uploadMedia(@Body() uploadMediaDtos: UploadMediaDto[], @Param('id', ParseObjectIdPipe) id: string) {
     return this.postService.uploadMedia(id, uploadMediaDtos)
   }
+  @Patch(':id/upload-replace')
+  @transformToDtoResponse(ResponsePostDto)
+  replacedMedia(@Body() uploadMediaDtos: UploadMediaDto[], @Param('id', ParseObjectIdPipe) id: string) {
+    return this.postService.replaceMedia(id, uploadMediaDtos)
+  }
 
   @Delete(':id/upload')
   @transformToDtoResponse(ResponsePostDto)

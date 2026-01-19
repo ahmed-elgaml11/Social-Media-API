@@ -47,7 +47,27 @@ export class PostService {
       post.mediaFiles.push(media)
     });
 
+    const savedPost = await post.save()
+
+    const responsePost = plainToInstance(ResponsePostDto, savedPost, {excludeExtraneousValues: true})
+
+    this.postGateway.handleReplacedMedia(post._id.toString(), responsePost.mediaFiles);
+  }
+
+  async replaceMedia(id: string, uploadMediaDtos: UploadMediaDto[]) {
+    const post = await this.postModel.findById(id)
+    if (!post) {
+      throw new NotFoundException('post not found')
+    }
+    post.mediaFiles = []
     await post.save()
+    uploadMediaDtos.forEach(media => {
+      post.mediaFiles.push(media)
+    });
+
+    const savedPost = await post.save()
+
+    const responsePost = plainToInstance(ResponsePostDto, savedPost, {excludeExtraneousValues: true})
 
     this.postGateway.handleUploadMedia(post._id.toString(), uploadMediaDtos);
   }
