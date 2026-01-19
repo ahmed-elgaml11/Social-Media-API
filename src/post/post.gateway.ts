@@ -3,6 +3,7 @@ import { Server } from 'socket.io';
 import { ResponsePostDto } from './dto/response-post.dto';
 import { UploadMediaDto } from 'src/_cores/global/dtos';
 import { DeleteMediaDto } from './dto/delete-media.dto';
+import { ResponsePostReactionDto } from './dto/response-post-reaction.dto';
 
 @WebSocketGateway({
   cors: {
@@ -46,7 +47,7 @@ export class PostGateway {
     this.server.emit('post_remove', { postId });
   }
 
-  handleAddReaction(post: ResponsePostDto) {
+  handleAddReaction(post: ResponsePostDto , reactions: ResponsePostReactionDto[]) {
     this.server.emit('post_add_reaction', post);
   }
 

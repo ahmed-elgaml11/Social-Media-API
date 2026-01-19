@@ -5,8 +5,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Post } from './schemas/post.schema';
 import { Model } from 'mongoose';
 import { User } from 'src/users/schemas/user.schema';
-import {  IUserPaylod } from 'src/global';
-import { UploadMediaDto } from  '../_cores/global/dtos'
+import { IUserPaylod } from 'src/global';
+import { UploadMediaDto } from '../_cores/global/dtos'
 import { DeleteMediaDto } from './dto/delete-media.dto';
 import { AddReactionDto } from './dto/add-reaction.dto';
 import { ReactionService } from 'src/reaction/reaction.service';
@@ -16,6 +16,7 @@ import { ResponsePostDto } from './dto/response-post.dto';
 import { PostGateway } from './post.gateway';
 import { NotificationService } from 'src/notification/notification.service';
 import { UsersService } from 'src/users/users.service';
+import { ResponsePostReactionDto } from './dto/response-post-reaction.dto';
 
 @Injectable()
 export class PostService {
@@ -49,7 +50,7 @@ export class PostService {
 
     const savedPost = await post.save()
 
-    const responsePost = plainToInstance(ResponsePostDto, savedPost, {excludeExtraneousValues: true})
+    const responsePost = plainToInstance(ResponsePostDto, savedPost, { excludeExtraneousValues: true })
 
     this.postGateway.handleReplacedMedia(post._id.toString(), responsePost.mediaFiles);
   }
@@ -67,7 +68,7 @@ export class PostService {
 
     const savedPost = await post.save()
 
-    const responsePost = plainToInstance(ResponsePostDto, savedPost, {excludeExtraneousValues: true})
+    const responsePost = plainToInstance(ResponsePostDto, savedPost, { excludeExtraneousValues: true })
 
     this.postGateway.handleUploadMedia(post._id.toString(), uploadMediaDtos);
   }
@@ -130,7 +131,7 @@ export class PostService {
     };
   }
 
-   async findOne(id: string) {
+  async findOne(id: string) {
     const post = await this.postModel.findById(id);
     if (!post) {
       throw new NotFoundException('post not found')
@@ -158,7 +159,7 @@ export class PostService {
       throw new NotFoundException('post not found')
     }
 
-     this.postGateway.handlePostUpdate({postId: post._id.toString(), backgroundColor: post.backgroundColor, content: post.content, privacy: post.privacy});
+    this.postGateway.handlePostUpdate({ postId: post._id.toString(), backgroundColor: post.backgroundColor, content: post.content, privacy: post.privacy });
 
     return post
   }
@@ -195,17 +196,30 @@ export class PostService {
 
     const updatedPost = await this.postModel.findByIdAndUpdate(postId, {
       $inc: updateOps
-    }, { new: true }) 
+    }, { new: true })
+
+    if (!updatedPost) {
+      throw new NotFoundException('post not found')
+    }
+
+    const reactions = await this.findReactions(updatedPost._id.toString())
 
     const responsePost = plainToInstance(ResponsePostDto, updatedPost, {
       excludeExtraneousValues: true,
     });
-    this.postGateway.handleAddReaction(responsePost);
+    const responseReactions = plainToInstance(ResponsePostReactionDto, reactions, { excludeExtraneousValues: true })
+    this.postGateway.handleAddReaction(
+      {
+        ...responsePost,
+        myReaction: reactionType
+      },
+      responseReactions
+    );
 
 
     // send notification
     const notificationContent = `${currentUser.name} ${reactionType} to your post`
-   await this.notificationService.create(currentUser.id, post.author._id.toString(), 'reaction', notificationContent, postId);
+    await this.notificationService.create(currentUser.id, post.author._id.toString(), 'reaction', notificationContent, postId);
 
 
 
