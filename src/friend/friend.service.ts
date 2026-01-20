@@ -22,9 +22,18 @@ export class FriendService {
     }
 
     const existingFriendRequest = await this.friendRequestModel.findOne({
-      sender: currentUser.id,
-      reciever: receiverId,
-      status: { $in: ['pending', 'accept'] }
+      $or: [
+        {
+          sender: currentUser.id,
+          reciever: receiverId,
+          status: { $in: ['pending', 'accept'] }
+        },
+        {
+          sender: receiverId,
+          reciever: currentUser.id,
+          status: { $in: ['pending', 'accept'] }
+        }
+      ]
     })
     if (existingFriendRequest) {
       throw new BadRequestException('the friend request is sent before')
@@ -105,7 +114,12 @@ export class FriendService {
       excludeExtraneousValues: true
     })
 
-    this.friendGateway.handleAcceptFriendRequest({friendRequestId, senderId: friendRequest.sender._id.toString(), receiverId: friendRequest.receiver._id.toString(), receiverName: friendRequest.receiver.name, receiverAvatarUrl: friendRequest.receiver.avatar})
+    // this.friendGateway.handleAcceptFriendRequest({friendRequestId, senderId: friendRequest.sender._id.toString(), receiverId: friendRequest.receiver._id.toString(), receiverName: friendRequest.receiver.name, receiverAvatarUrl: friendRequest.receiver.avatar})
+    this.friendGateway.handleAcceptFriendRequest(
+      friendRequest.sender._id.toString(),
+      responseFriendRequest,
+      user.id
+    )
     return friendRequest
   }
 
@@ -124,7 +138,7 @@ export class FriendService {
     await friendRequest.save()
 
 
-    this.friendGateway.handleRejectFriendRequest(friendRequestId, friendRequest.sender._id.toString())
+    this.friendGateway.handleRejectFriendRequest(friendRequestId, friendRequest.sender._id.toString(), user.id)
 
   }
 
@@ -150,6 +164,47 @@ export class FriendService {
     return this.userService.getFriends(user.id)
 
   }
+
+  async unFriend(user: IUserPaylod, friendId: string) {
+
+    const friend = await this.userService.findOne(friendId)
+    if (!friend) {
+      throw new NotFoundException('friend not found')
+    }
+
+    if(user.id === friendId){
+      throw new BadRequestException('not allowed to unFriend yourself')
+    }
+
+    const isFriend = await this.userService.isFriend(user.id, friendId)
+    if (!isFriend) {
+      throw new BadRequestException('not allowed to unFriend')
+    }
+
+    await this.userService.removeFriend(user.id, friendId)
+    await this.userService.removeFriend(friendId, user.id)
+
+
+    await this.friendRequestModel.deleteOne({
+      $or: [
+        {
+          sender: user.id,
+          receiver: friendId,
+          status: 'accept'
+        },
+        {
+          sender: friendId,
+          receiver: user.id,
+          status: 'accept'
+        }
+      ]
+    })
+
+    this.friendGateway.handleUnFriend(friendId, user.id)
+  }
+
+
+
 
 
 }

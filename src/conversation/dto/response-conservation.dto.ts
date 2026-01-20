@@ -1,4 +1,5 @@
 import { Expose, Transform, Type } from "class-transformer";
+import { ObjectId } from "src/_cores/decorators/object-id.decorator";
 export class ParticipantDto {
     @Expose()
     _id: string;
@@ -36,6 +37,23 @@ export class ResponseConversationDto {
     groupAvatarUrl?: string;
     @Expose()
     groupName?: string;
+
+    @Expose()
+    lastMessageAt?: string;
+    @Expose()
+    isLastMessageSeen?: boolean;
+
+    @Expose()
+    @Transform(({ obj }) => obj.lastMessage?.content)
+    lastMessageContent?: string;
+
+    @Expose()
+    @Transform(({ obj }) => obj.lastMessage?.sender?.name)
+    senderLastMessageName?: string;
+    @Expose()
+    @ObjectId()
+    @Transform(({ obj }) => obj.lastMessage?.sender?._id)
+    senderLastMessageId?: string;
     @Expose()
     createdAt: Date;
     @Expose()

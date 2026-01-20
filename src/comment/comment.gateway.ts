@@ -16,8 +16,8 @@ export class CommentGateway {
     return 'Hello world!';
   }
 
-  handleCommentCreate(postId: string, comment: ResponseCommentDto) {
-    this.server.emit('comment_created', { postId, comment });
+  handleCommentCreate(comment: ResponseCommentDto) {
+    this.server.emit('comment_created', comment);
   }
 
   handleCommentUpdate(id: string, content: string, updatedAt: Date) {

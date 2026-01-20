@@ -56,7 +56,7 @@ export class CommentService {
 
     const responseComment = plainToInstance(ResponseCommentDto, populateComment, { excludeExtraneousValues: true });
 
-    this.commentGateway.handleCommentCreate(postId, responseComment);
+    this.commentGateway.handleCommentCreate(responseComment);
 
 
 

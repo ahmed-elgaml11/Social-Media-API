@@ -36,7 +36,7 @@ export class MessageService {
       .populate('sender', 'name avatar')
       .populate('seenBy', 'name avatar')
 
-    await this.conversationService.updateLastMessage(conversationId, message._id.toString());
+    await this.conversationService.updateLastMessage(conversationId, message);
 
     const responseMessage = plainToInstance(ResponseMessagesDto, newMessage, {
       excludeExtraneousValues: true

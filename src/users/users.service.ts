@@ -107,6 +107,12 @@ export class UsersService {
     })
   }
 
+  async removeFriend(userId: string, friendId: string) {
+    await this.userModel.findByIdAndUpdate(userId, {
+      $pull: { friends: friendId }
+    }, { new: true })
+  }
+
   async getFriends(userId: string) {
     const user = await this.userModel.findById(userId).populate('friends')
     if (!user) throw new NotFoundException('user not found')
@@ -114,10 +120,16 @@ export class UsersService {
     return user?.friends
   }
 
-  getCurrentUser(id: string) {
-    const user = this.userModel.findOne({ _id: id, isActive: true })
+  async getCurrentUser(id: string) {
+    const user = await this.userModel.findOne({ _id: id, isActive: true })
     if (!user) throw new NotFoundException('user not found')
     return user
+  }
+
+  async isFriend(userId: string, friendId: string) {
+    const user = await this.userModel.findById(userId).select('friends')
+    if (!user) throw new NotFoundException('user not found')
+    return user.friends.some((friend) => friend._id.toString() === friendId)
   }
 
 }

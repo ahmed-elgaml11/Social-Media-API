@@ -29,6 +29,9 @@ export class Conversation {
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Message' })
     lastMessage?: MessageDocument
 
+    @Prop({default: null})
+    lastMessageAt?: Date
+
     createdAt: Date
     updatedAt: Date
 }

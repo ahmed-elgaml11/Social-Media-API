@@ -9,6 +9,7 @@ import { CreateGroupConversationDto } from './dto/create-group-conversation.dto'
 import { AddParticipantsDto } from './dto/add-participants.dto';
 import { UsersService } from 'src/users/users.service';
 import { UserDocument } from 'src/users/schemas/user.schema';
+import { MessageDocument } from 'src/message/schemas/message.schema';
 
 @Injectable()
 export class ConversationService {
@@ -51,20 +52,36 @@ export class ConversationService {
       participants: { $in: [currentUser.id] },
     }
     if (cursor) {
-      query.createdAt = { $lt: new Date(cursor) };
+      query.lastMessageAt = { $lt: new Date(cursor) };
     }
     const conversations = await this.conversationModel
       .find(query)
-      .populate('lastMessage', 'content')
-      .populate('groupOwner', 'email name')
-      .sort({ createdAt: -1 })
+      .populate({
+        path: 'lastMessage',
+        select: 'content sender',
+        populate: {
+          path: 'sender',
+          select: 'name _id'
+        }
+      }).populate('groupOwner', 'email name')
+      .populate('participants', 'email name avatar')
+      .sort({ lastMessageAt: -1 })
       .limit(limit + 1)
       .lean()
 
     const hasNextPage = conversations.length > limit;
     const items = hasNextPage ? conversations.slice(0, limit) : conversations;
-    const nextCursor = hasNextPage ? items[limit - 1]?.createdAt : null;
-    return { items, hasNextPage, nextCursor };
+    const nextCursor = hasNextPage ? items[limit - 1]?.lastMessageAt : null;
+
+    const resultItems = items.map((conversation) => {
+      const seenBy = conversation.lastMessage?.seenBy || [];
+      const isLastMessageSeen = seenBy.some((user) => user._id.toString() === currentUser.id.toString());
+      return {
+        ...conversation,
+        isLastMessageSeen,
+      }
+    })
+    return { items: resultItems, hasNextPage, nextCursor };
   }
 
   findOne(id: string) {
@@ -160,7 +177,7 @@ export class ConversationService {
 
 
 
-  async updateLastMessage(id: string, lastMessageId: string) {
-    await this.conversationModel.findByIdAndUpdate(id, { lastMessage: lastMessageId });
+  async updateLastMessage(id: string, lastMessage: MessageDocument) {
+    await this.conversationModel.findByIdAndUpdate(id, { lastMessage: lastMessage._id, lastMessageAt: lastMessage.createdAt });
   }
 }

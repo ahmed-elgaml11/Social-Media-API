@@ -10,7 +10,7 @@ declare type IRole = 'admin' | 'user'
 
 declare type IPrivacy = 'private' | 'public' | 'friends'
 
-declare type IReactionType = 'like' | 'love' | 'haha' | 'wow' | 'happy' | 'angry'
+declare type IReactionType = 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
 
 declare type IFriendRequestType = 'accept' | 'reject' | 'pending'
 
