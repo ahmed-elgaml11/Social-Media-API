@@ -49,6 +49,13 @@ export class FriendController {
   @transformToDtoResponse(ResponseFriendDto)
   getCurrentFriends(@CurrentUser() user: IUserPaylod) {
     return this.friendService.getCurrentFriends(user);
+  } 
+
+  @Delete('/:freiendId')
+  @transformToDtoResponse(ResponseFriendDto)
+  removeFriend(@CurrentUser() user: IUserPaylod, @Param('freiendId', ParseObjectIdPipe) freiendId: string) {
+    return this.friendService.unFriend(user, freiendId);
   }
+
 
 }

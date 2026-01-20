@@ -53,14 +53,14 @@ export class MessageService {
     }
 
     if (cursor) {
-      query.createdAt = { $gt: new Date(cursor) }
+      query.createdAt = { $lt: new Date(cursor) }
     }
 
     const messages = await this.messageModel
       .find(query)
       .populate('sender', 'name avatar')
       .populate('seenBy', 'name avatar')
-      .sort({ createdAt: 1 })
+      .sort({ createdAt: -1 })
       .limit(limit + 1)
       .lean();
 
@@ -113,25 +113,42 @@ export class MessageService {
 
 
   async markSeenMessage(id: string, currentUser: IUserPaylod) {
-    const message = await this.findOne(id);
 
 
-    const alreadySeen = message?.seenBy?.some((user) => user._id.toString() === currentUser.id);
-    if (!alreadySeen) {
-      const user = await this.usersService.findOne(currentUser.id);
-      const responseUser = plainToInstance(ResponseUserDto, user, {
-        excludeExtraneousValues: true
-      })
-      message?.seenBy?.push(user.id);
+    const result = await this.messageModel.updateOne(
+      { _id: id, seenBy: { $ne: currentUser.id } },
+      { $addToSet: { seenBy: currentUser.id } },
+    )
 
-      await message.save();
-      this.messageGateway.handleSeenMessage(message.conversation._id.toString(), message._id.toString(),
-        {
-          userId: responseUser.id,
-          userName: responseUser.name,
-          userAvatar: responseUser.avatarUrl
-        }
-      )
+    if (result.modifiedCount === 0) 
+      return;
+    
+
+    const message = await this.messageModel.findById(id)
+      .populate('sender', 'name avatar')
+      .populate('seenBy', 'name avatar')
+
+    if (!message) {
+      throw new NotFoundException('Message not found');
     }
+
+    const user = await this.usersService.findOne(currentUser.id);
+    const responseUser = plainToInstance(ResponseUserDto, user, {
+      excludeExtraneousValues: true
+    })
+
+
+    const responseMessage = plainToInstance(ResponseMessagesDto, message, {
+      excludeExtraneousValues: true
+    })
+
+    this.messageGateway.handleSeenMessage(message.conversation._id.toString(), message._id.toString(),
+      {
+        userId: responseUser.id,
+        userName: responseUser.name,
+        userAvatar: responseUser.avatarUrl
+      }
+    )
+
   }
 }
