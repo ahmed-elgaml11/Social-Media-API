@@ -10,7 +10,6 @@ import { ResponseMessagesDto } from './dto/response-messages.dto';
   }
 })
 export class MessageGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  constructor(private messageService: MessageService) {}
   @WebSocketServer()
   server: Server;          // = io
 

@@ -1,8 +1,7 @@
 import { Expose, Transform, Type } from "class-transformer";
-import * as global from "src/global";
 import { PostDocument } from "../schemas/post.schema";
 import { ObjectId } from "src/_cores/decorators/object-id.decorator";
-import { IReactionType } from "src/global";
+import type { IReactionType, IPrivacy } from "src/global";
 
 
 class MediaType {
@@ -39,7 +38,7 @@ export class ResponsePostDto {
     @Expose()
     updatedAt: Date
     @Expose()
-    privacy: global.IPrivacy
+    privacy: IPrivacy
     @Expose()
     @Type(() => MediaType)
     mediaFiles: MediaType[]

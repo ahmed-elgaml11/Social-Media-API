@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Post } from 'src/post/schemas/post.schema';
 import { User, UserDocument } from 'src/users/schemas/user.schema';
+import { Comment } from 'src/comment/schemas/comment.schema';
 
 @Injectable()
 export class ResourceService {
