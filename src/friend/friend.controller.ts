@@ -12,7 +12,7 @@ import { ResponseFriendDto } from './dto/response-friend.dto ';
 @Controller('friends')
 @UseGuards(AuthGuard)
 export class FriendController {
-  constructor(private readonly friendService: FriendService) {}
+  constructor(private readonly friendService: FriendService) { }
 
   @transformToDtoResponse(ResponseFriendRequestDto)
   @HttpCode(200)
@@ -22,7 +22,7 @@ export class FriendController {
   }
 
   @HttpCode(200)
-  @Post('canel-request/:receiverId')
+  @Post('cancel-request/:receiverId')
   cancelFriendRequest(@CurrentUser() user: IUserPaylod, @Param('receiverId', ParseObjectIdPipe) id: string) {
     return this.friendService.remove(user, id);
   }
@@ -49,7 +49,7 @@ export class FriendController {
   @transformToDtoResponse(ResponseFriendDto)
   getCurrentFriends(@CurrentUser() user: IUserPaylod) {
     return this.friendService.getCurrentFriends(user);
-  } 
+  }
 
   @Delete('/:freiendId')
   @transformToDtoResponse(ResponseFriendDto)
