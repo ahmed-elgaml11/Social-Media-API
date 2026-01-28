@@ -12,7 +12,7 @@ export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
-  async findAll(currentUser: IUserPaylod, q: string, limit: number, cursor?: string ) {
+  async findAll(currentUser: IUserPaylod, q?: string, limit?: number, cursor?: string ) {
     const query: Record<string, any> = { isActive: true }
     if (q) {
       query.$or = [
@@ -33,12 +33,12 @@ export class UsersService {
     const users = await this.userModel
       .find(query)
       .sort({ email: 1 })
-      .limit(limit + 1)
+      .limit(limit || 10 + 1)
       .lean();
 
-    const hasNextPage = users.length > limit
+    const hasNextPage = users.length > (limit || 10)
 
-    const items = (hasNextPage ? users.slice(0, limit) : users).map((user) => ({
+    const items = (hasNextPage ? users.slice(0, limit || 10) : users).map((user) => ({
       ...user,
       isFriend: friendsIds.has(user._id.toString())
     }))

@@ -28,10 +28,12 @@ export class RoleGuard implements CanActivate {
 
         if (user.role === 'user' && requiredRoles.includes('user')) {
             const userId = user.id
+
             const resourceIdOfUser = await this.resourceService.getResource(resourceType, resourceId)
             if (!resourceIdOfUser) {
                 throw new BadRequestException('resource of this user not found')
             }
+
             return userId == resourceIdOfUser
 
         }
