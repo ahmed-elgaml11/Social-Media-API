@@ -8,9 +8,8 @@ import {
 } from '@nestjs/common';
 import { CloudinaryService } from './cloudinary.service';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { version } from 'os';
 
-@Controller('image')
+@Controller('cloudinary')
 export class CloudinaryController {
     constructor(private readonly cloudinaryService: CloudinaryService) { }
 
@@ -22,10 +21,8 @@ export class CloudinaryController {
             message: 'success',
             data: {
                 public_id: result.public_id,
-                version: result.version,
-                display_name: result.display_name,
-                format: result.format,
-                resource_type: result.resource_type,
+                url: result.url,
+                secure_url: result.secure_url 
             }
         }
     }
@@ -38,10 +35,8 @@ export class CloudinaryController {
             message: 'success',
             data: result.map(file => ({
                 public_id: file.public_id,
-                version: file.version,
-                display_name: file.display_name,
-                format: file.format,
-                resource_type: file.resource_type,
+                url: file.url,
+                secure_url: file.secure_url 
             }))
         }
     }

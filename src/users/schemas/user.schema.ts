@@ -26,7 +26,7 @@ export class User {
     bio?: string
 
     @Prop({default: false})
-    avatar?: MediaType
+    avatar?: MediaType | boolean
 
     @Prop()
     coverPhoto?: MediaType

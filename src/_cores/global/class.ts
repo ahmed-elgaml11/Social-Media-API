@@ -1,7 +1,5 @@
 export class MediaType {
-    public_id: string
-    version: number
-    display_name: string
-    format: string
-    resource_type: string
+  public_id: string;
+  url: string;
+  secure_url: string;
 }
