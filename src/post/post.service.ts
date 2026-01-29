@@ -30,7 +30,7 @@ export class PostService {
   async create(createPostDto: CreatePostDto, user: IUserPaylod) {
     const post = new this.postModel({
       ...createPostDto,
-      author: user
+      author: user.id
     })
     const savedPost = await post.save();
     const responsePost = plainToInstance(ResponsePostDto, savedPost);
@@ -219,9 +219,6 @@ export class PostService {
     // send notification
     const notificationContent = `${currentUser.name} ${reactionType} to your post`
     await this.notificationService.create(currentUser.id, post.author._id.toString(), 'reaction', notificationContent, postId);
-
-
-
   }
 
 

@@ -33,7 +33,7 @@ export class ResponsePostDto {
     @Type(() => MediaType)
     mediaFiles: MediaType[]
     @Expose()
-    @Transform(({ obj }) => obj.reactionCounts)
+    @Transform(({ obj }) => obj.reactionsCount)
     reactionsCount: Map<IReactionType, number>
     @Expose()
     myReaction: IReactionType | null
@@ -41,12 +41,12 @@ export class ResponsePostDto {
 
     // custom properties 
     @Expose()
-    @Transform(({ obj }: { obj: PostDocument }) => obj.author._id)
+    @Transform(({ obj }: { obj: PostDocument }) => obj?.author?._id.toString())
     authorId: string
     @Expose()
-    @Transform(({ obj }) => obj.author.email)
+    @Transform(({ obj }) => obj?.author?.email)
     authorEmail: string
     @Expose()
-    @Transform(({ obj }) => obj.author.name)
+    @Transform(({ obj }) => obj?.author?.name)
     authorName: string
 }

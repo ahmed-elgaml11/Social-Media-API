@@ -14,11 +14,6 @@ export class PostGateway {
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('message')
-  handleMessage(client: any, payload: any): string {
-    return 'Hello world!';
-  }
-
 
 
   handlePostCreate(post: ResponsePostDto) {
