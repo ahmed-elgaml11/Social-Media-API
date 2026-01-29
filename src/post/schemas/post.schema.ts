@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
+import { MediaType } from "src/_cores/global/class";
 import { REACTION_TYPES } from "src/_cores/global/constants";
 import type { IPrivacy, IReactionType } from "src/global";
 import type { UserDocument } from "src/users/schemas/user.schema";
@@ -9,13 +10,6 @@ import type { UserDocument } from "src/users/schemas/user.schema";
 
 
 export type PostDocument = HydratedDocument<Post>
-export class MediaType {
-    public_id: string
-    version: number
-    display_name: string
-    format: string
-    resource_type: string
-}
 
 
 @Schema({ timestamps: true })

@@ -4,7 +4,6 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Post } from './schemas/post.schema';
 import { Model } from 'mongoose';
-import { User } from 'src/users/schemas/user.schema';
 import { IUserPaylod } from 'src/global';
 import { UploadMediaDto } from '../_cores/global/dtos'
 import { DeleteMediaDto } from './dto/delete-media.dto';

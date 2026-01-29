@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
@@ -53,7 +52,7 @@ export class UsersService {
 
 
 
-  async uploadAvatar(currentUser: IUserPaylod, uploadMediaDto: UploadMediaDto) {
+  async uploadAvatar(uploadMediaDto: UploadMediaDto, currentUser: IUserPaylod) {
     const user = await this.userModel.findById(currentUser.id)
     if (!user) {
       throw new NotFoundException('user not found')
@@ -62,7 +61,7 @@ export class UsersService {
     return user.save()
   }
 
-  async uploadCoverPhoto(currentUser: IUserPaylod, uploadMediaDto: UploadMediaDto) {
+  async uploadCoverPhoto(uploadMediaDto: UploadMediaDto, currentUser: IUserPaylod) {
     const user = await this.userModel.findById(currentUser.id)
     if (!user) {
       throw new NotFoundException('user not found')
@@ -70,12 +69,6 @@ export class UsersService {
     user.coverPhoto = uploadMediaDto
     return user.save()
   }
-
-
-
-
-
-
 
   async findOne(id: string) {
     const user = await this.userModel.findOne({ _id: id, isActive: true })

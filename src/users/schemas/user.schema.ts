@@ -25,10 +25,10 @@ export class User {
     @Prop()
     bio?: string
 
-    @Prop({default: false})
-    avatar?: MediaType | boolean
+    @Prop({ type: MediaType,default: null })
+    avatar?: MediaType | null;
 
-    @Prop()
+    @Prop({ default: null })
     coverPhoto?: MediaType
 
     @Prop()

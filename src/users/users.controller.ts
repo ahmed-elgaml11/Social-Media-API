@@ -1,9 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, UseInterceptors, Query, ParseIntPipe, DefaultValuePipe } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from 'src/_cores/guards/auth.guard';
-import express from 'express';
 import { CurrentUser } from 'src/_cores/decorators/currentUser.auth.decorator';
 import type { IUserPaylod } from 'src/global';
 import { transformToDtoResponse } from 'src/_cores/interceptors/transform-dto.interceptors';
@@ -29,13 +27,13 @@ export class UsersController {
 
   @Post('upload-avatar')
   uploadAvatar(@Body() uploadMediaDto: UploadMediaDto,  @CurrentUser() user: IUserPaylod){
-    return this.usersService.uploadAvatar(user, uploadMediaDto)
+    return this.usersService.uploadAvatar(uploadMediaDto, user)
   }
 
 
   @Post('upload-cover')
   uploadCoverPhoto(@Body() uploadMediaDto: UploadMediaDto,  @CurrentUser() user: IUserPaylod){
-    return this.usersService.uploadCoverPhoto(user, uploadMediaDto)
+    return this.usersService.uploadCoverPhoto(uploadMediaDto, user)
   }
 
 

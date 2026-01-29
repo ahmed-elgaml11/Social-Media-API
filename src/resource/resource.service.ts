@@ -26,7 +26,7 @@ export class ResourceService {
                 return post.author?._id.toString()
             }
             case 'comments': {
-                const comment = await this.commentModel.findById(resourceId) as Comment & { user?: UserDocument }
+                const comment = await this.commentModel.findById(resourceId) 
                 if (!comment) throw new BadRequestException('comment not found')
                 return comment.user?._id.toString()
             }

@@ -20,13 +20,13 @@ export class ResponseUserDto {
     @Expose()
     bio: boolean
     @Expose()
-    @Transform(({ obj }) => obj.avatar?.public_id ? `https://res.cloudinary.com/${process.env.CLOUDINARY_NAME}/${obj.avatar.resource_type}/upload/${obj.avatar.version}/${obj.avatar.public_id}.${obj.avatar.format}` : null)
+    @Transform(({ obj }) => obj.avatar ? obj.avatar.secure_url : null)
     avatarUrl: string
 
     @Expose()
     isFriend: boolean
     @Expose()
-    @Transform(({ obj }) => obj.coverPhoto?.public_id ? `https://res.cloudinary.com/${process.env.CLOUDINARY_NAME}/${obj.coverPhoto.resource_type}/upload/${obj.coverPhoto.version}/${obj.coverPhoto.public_id}.${obj.coverPhoto.format}` : null)
+    @Transform(({ obj }) => obj.coverPhoto?.secure_url ? obj.coverPhoto.secure_url : null)
     coverPhotoUrl: string
 
 
