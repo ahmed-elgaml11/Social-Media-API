@@ -16,6 +16,7 @@ import { PostGateway } from './post.gateway';
 import { NotificationService } from 'src/notification/notification.service';
 import { UsersService } from 'src/users/users.service';
 import { ResponsePostReactionDto } from './dto/response-post-reaction.dto';
+import { ConversationModule } from 'src/conversation/conversation.module';
 
 @Injectable()
 export class PostService {
@@ -33,7 +34,8 @@ export class PostService {
       author: user.id
     })
     const savedPost = await post.save();
-    const responsePost = plainToInstance(ResponsePostDto, savedPost);
+    const populatedPost = await savedPost.populate('author', '_id name email');
+    const responsePost = plainToInstance(ResponsePostDto, populatedPost, { excludeExtraneousValues: true });
     this.postGateway.handlePostCreate(responsePost);
     return responsePost;
   }
@@ -46,12 +48,9 @@ export class PostService {
     uploadMediaDtos.forEach(media => {
       post.mediaFiles.push(media)
     });
-
     const savedPost = await post.save()
-
-    const responsePost = plainToInstance(ResponsePostDto, savedPost, { excludeExtraneousValues: true })
-
-    this.postGateway.handleReplacedMedia(post._id.toString(), responsePost.mediaFiles);
+    this.postGateway.handleUploadMedia(post._id.toString(), savedPost.mediaFiles);
+    return savedPost;
   }
 
   async replaceMedia(id: string, uploadMediaDtos: UploadMediaDto[]) {
@@ -59,17 +58,12 @@ export class PostService {
     if (!post) {
       throw new NotFoundException('post not found')
     }
-    post.mediaFiles = []
-    await post.save()
-    uploadMediaDtos.forEach(media => {
-      post.mediaFiles.push(media)
-    });
+    post.mediaFiles = uploadMediaDtos
 
     const savedPost = await post.save()
 
-    const responsePost = plainToInstance(ResponsePostDto, savedPost, { excludeExtraneousValues: true })
-
-    this.postGateway.handleUploadMedia(post._id.toString(), uploadMediaDtos);
+    this.postGateway.handleReplacedMedia(post._id.toString(), uploadMediaDtos);
+    return savedPost;
   }
 
   async removeMedia(id: string, deleteMediaDto: DeleteMediaDto) {
@@ -169,7 +163,6 @@ export class PostService {
       throw new NotFoundException('post not found')
     }
     this.postGateway.handlePostRemove(post._id.toString());
-    return post
   }
 
 
@@ -186,10 +179,13 @@ export class PostService {
 
     if (existingReaction) {
       // Update reaction type
+      console.log('zzzz')
       await this.reactionService.update(existingReaction._id.toString(), reactionType);
       updateOps[`reactionsCount.${existingReaction.type}`] = -1
 
     } else {
+      console.log('xxxx')
+
       await this.reactionService.create(addReactionDto, currentUser);
     }
 
@@ -197,20 +193,24 @@ export class PostService {
       $inc: updateOps
     }, { new: true })
 
+    const populatedPost = await this.postModel.findById(postId).populate('author')
+
     if (!updatedPost) {
       throw new NotFoundException('post not found')
     }
 
     const reactions = await this.findReactions(updatedPost._id.toString())
 
-    const responsePost = plainToInstance(ResponsePostDto, updatedPost, {
+    const responsePost = plainToInstance(ResponsePostDto, populatedPost, {
       excludeExtraneousValues: true,
     });
     const responseReactions = plainToInstance(ResponsePostReactionDto, reactions, { excludeExtraneousValues: true })
+    
     this.postGateway.handleAddReaction(
-      {
-        ...responsePost,
-        myReaction: reactionType
+      { 
+        ... responsePost,
+        myReaction: reactionType 
+
       },
       responseReactions
     );
@@ -228,8 +228,6 @@ export class PostService {
     const existingReaction = await this.reactionService.findExistingReaction(postId, currentUser.id);
     if (!existingReaction) return;
 
-
-
     const reactionType = existingReaction.type;
     await this.reactionService.remove(existingReaction._id.toString());
 
@@ -237,7 +235,9 @@ export class PostService {
       $inc: { [`reactionsCount.${reactionType}`]: -1 }
     }, { new: true })
 
-    const responsePost = plainToInstance(ResponsePostDto, savedPost, {
+    const populatedPost = await this.postModel.findById(postId).populate('author')
+
+    const responsePost = plainToInstance(ResponsePostDto, populatedPost, {
       excludeExtraneousValues: true,
     });
     this.postGateway.handleRemoveReaction(responsePost);

@@ -19,13 +19,6 @@ export class ReactionService {
     return reaction.save();
   }
 
-  findAll() {
-    return `This action returns all reaction`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} reaction`;
-  }
 
   update(id: string, type: IReactionType ) {
     const reaction = this.reactionModel.findByIdAndUpdate(id, { type }, { new: true });
@@ -42,7 +35,7 @@ export class ReactionService {
     }
   }
   
-  findExistingReaction(userId: string, postId: string) {
+  findExistingReaction(postId: string, userId: string) {
     return this.reactionModel.findOne({ user: userId, post: postId });
   }
 

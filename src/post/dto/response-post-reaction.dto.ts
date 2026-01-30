@@ -6,18 +6,18 @@ export class ResponsePostReactionDto {
     @ObjectId()
     _id: string;
     @Expose()
-    @ObjectId()
+    @Transform(({ value }) => value.toString())
     post: string;
     @Expose()
     type: string;
     @Expose()
-    @Transform(({ obj }) => obj?.user?._id)
+    @Transform(({ obj }) => obj?.user?._id.toString())
     userId: string;
     @Expose()
     @Transform(({ obj }) => obj?.user?.name)
     userName: string;
     @Expose()
-    @Transform(({ obj }) => obj?.user?.avatar ? `https://res.cloudinary.com/${process.env.CLOUDINARY_NAME}/${obj?.user?.avatar?.resource_type}/upload/${obj?.user?.avatar?.version}/${obj?.user?.avatar?.public_id}.${obj?.user?.avatar?.format}` : null)
+    @Transform(({ obj }) => obj?.user?.avatar?.secure_url)
     userAvatarUrl: string;
     @Expose()
     createdAt: Date;

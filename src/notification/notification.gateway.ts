@@ -12,6 +12,7 @@ export class NotificationGateway {
     server: Server;
   
   handleNotification(receiverId: string, data: ResponseNotificationDto) {
+    console.log('notification_created', data);
     this.server.to(receiverId).emit('notification_created', data);
   }
 }

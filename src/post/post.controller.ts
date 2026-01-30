@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ParseIntPipe, DefaultValuePipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ParseIntPipe, DefaultValuePipe, ParseArrayPipe } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -27,7 +27,7 @@ export class PostController {
   create(@Body() createPostDto: CreatePostDto, @CurrentUser() user: IUserPaylod) {
     return this.postService.create(createPostDto, user);
   }
-  @Post('reaction')
+  @Patch('reaction')
   @transformToDtoResponse(ResponsePostDto)
   addReaction(@Body() addReactionDto: AddReactionDto, @CurrentUser() user: IUserPaylod) {
     return this.postService.addReaction(addReactionDto, user);
@@ -58,12 +58,12 @@ export class PostController {
 
   @Patch(':id/upload')
   @transformToDtoResponse(ResponsePostDto)
-  uploadMedia(@Body() uploadMediaDtos: UploadMediaDto[], @Param('id', ParseObjectIdPipe) id: string) {
+  uploadMedia(@Body(new ParseArrayPipe({ items: UploadMediaDto })) uploadMediaDtos: UploadMediaDto[], @Param('id', ParseObjectIdPipe) id: string) {
     return this.postService.uploadMedia(id, uploadMediaDtos)
   }
   @Patch(':id/upload-replace')
   @transformToDtoResponse(ResponsePostDto)
-  replacedMedia(@Body() uploadMediaDtos: UploadMediaDto[], @Param('id', ParseObjectIdPipe) id: string) {
+  replacedMedia(@Body(new ParseArrayPipe({ items: UploadMediaDto })) uploadMediaDtos: UploadMediaDto[], @Param('id', ParseObjectIdPipe) id: string) {
     return this.postService.replaceMedia(id, uploadMediaDtos)
   }
 
