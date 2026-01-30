@@ -12,12 +12,12 @@ export class ResponseCommentDto {
     // @Transform(({obj}) => obj.post)
     // postId: string
     @Expose()
-    @ObjectId()
+    @Transform(({ obj }) => obj.post.toString())
     post: string
 
     @Expose()
     @ObjectId()
-    @Transform(({ obj }) => obj.parent ? obj.parent : null)
+    @Transform(({ obj }) => obj.parent ? obj.parent.toString() : null)
     parent: string
 
     @Expose()
@@ -32,8 +32,9 @@ export class ResponseCommentDto {
     @Expose()
     @Transform(({ obj }) => obj.user ? obj.user.name : null)
     userCommentName: string;
-    // ToDo 
-    // userCommentAvatar: string | null;
+    @Expose()
+    @Transform(({ obj }) => obj.user ? obj.user.avatar?.secure_url : null)
+    userCommentAvatar: string | null;
 
 
     @Expose()
@@ -42,8 +43,9 @@ export class ResponseCommentDto {
     @Expose()
     @Transform(({ obj }) => obj.replyToUser ? obj.replyToUser.name : null)
     replyToUserName: string;
-    // ToDo 
-    // replyToUserAvatar: string | null;
+    @Expose()
+    @Transform(({ obj }) => obj.replyToUser ? obj.replyToUser.avatar?.secure_url : null)
+    replyToUserAvatar: string | null;
 
 
     @Expose()

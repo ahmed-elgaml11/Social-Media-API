@@ -22,13 +22,13 @@ export class CommentService {
   ) { }
 
   async create(createCommentDto: CreateCommentDto, user: IUserPaylod) {
-    const { content, postId, repliyToUserId, parentCommentId } = createCommentDto;
+    const { content, postId, replyToUserId, parentCommentId } = createCommentDto;
     const post = await this.postService.findOne(postId);
     let realParentCommentId: string | null = null;
     let realReplyToUserId: string | null = null;
 
-    if (repliyToUserId) {
-      const replyToUser = await this.userService.findOne(repliyToUserId);
+    if (replyToUserId) {
+      const replyToUser = await this.userService.findOne(replyToUserId);
       realReplyToUserId = replyToUser._id.toString();
     }
     if (parentCommentId) {
@@ -59,10 +59,7 @@ export class CommentService {
     this.commentGateway.handleCommentCreate(responseComment);
 
 
-
-
-
-    return savedComment;
+    return populateComment;
 
   }
 
@@ -92,7 +89,7 @@ export class CommentService {
 
 
   async findOne(id: string) {
-    const comment = await this.commentModel.findById(id);
+    const comment = await this.commentModel.findById(id).populate('user').populate('replyToUser').lean();
     if (!comment) {
       throw new NotFoundException('Comment not found');
     }
@@ -122,6 +119,5 @@ export class CommentService {
 
     this.commentGateway.handleCommentRemove(id, comment.parent?._id?.toString());
 
-    return comment;
   }
 }

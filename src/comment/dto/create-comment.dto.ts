@@ -11,5 +11,5 @@ export class CreateCommentDto {
     parentCommentId?: string | null;
     @IsOptional()
     @IsMongoId()
-    repliyToUserId?: string | null;
+    replyToUserId?: string | null;
 }

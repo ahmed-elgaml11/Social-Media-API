@@ -13,7 +13,7 @@ import type { IUserPaylod } from 'src/global';
 
 @transformToDtoResponse(ResponseCommentDto)
 @UseGuards(AuthGuard, RoleGuard)
-@Controller('comment')
+@Controller('comments')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
