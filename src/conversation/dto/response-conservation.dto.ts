@@ -8,7 +8,7 @@ export class ParticipantDto {
     @Expose()
     email: string;
     @Expose()
-    @Transform(({ obj }) => obj.avatar ? `https://res.cloudinary.com/${process.env.CLOUDINARY_NAME}/${obj.avatar.resource_type}/upload/${obj.avatar.version}/${obj.avatar.public_id}.${obj.avatar.format}` : null)
+    @Transform(({ obj }) => obj.avatar?.secure_url ? obj.avatar.secure_url : null)
     avatarUrl?: string;
 }
 
@@ -33,7 +33,7 @@ export class ResponseConversationDto {
     @Transform(({ obj }) => obj.groupOwner.email)
     groupOwnerEmail?: string;
     @Expose()
-    @Transform(({ obj }) => obj.groupAvatar ? `https://res.cloudinary.com/${process.env.CLOUDINARY_NAME}/${obj.groupAvatar.resource_type}/upload/${obj.groupAvatar.version}/${obj.groupAvatar.public_id}.${obj.groupAvatar.format}` : null)
+    @Transform(({ obj }) => obj.groupAvatar?.secure_url ? obj.groupAvatar.secure_url : null)
     groupAvatarUrl?: string;
     @Expose()
     groupName?: string;
