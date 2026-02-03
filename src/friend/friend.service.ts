@@ -10,10 +10,12 @@ import { ResponseFriendRequestDto } from './dto/response-friend-request.dto';
 
 @Injectable()
 export class FriendService {
-  constructor(@InjectModel(FriendRequest.name) private friendRequestModel: Model<FriendRequest>,
+  constructor(
+    @InjectModel(FriendRequest.name) private friendRequestModel: Model<FriendRequest>,
     private readonly userService: UsersService,
     private readonly friendGateway: FriendGateway
   ) { }
+
   async create(currentUser: IUserPaylod, receiverId: string) {
     const reciever = await this.userService.findOne(receiverId)
 
@@ -21,16 +23,17 @@ export class FriendService {
       throw new BadRequestException('not allowed to send friend request to yourself')
     }
 
+
     const existingFriendRequest = await this.friendRequestModel.findOne({
       $or: [
         {
           sender: currentUser.id,
-          reciever: receiverId,
+          receiver: receiverId,
           status: { $in: ['pending', 'accept'] }
         },
         {
           sender: receiverId,
-          reciever: currentUser.id,
+          receiver: currentUser.id,
           status: { $in: ['pending', 'accept'] }
         }
       ]
@@ -41,7 +44,7 @@ export class FriendService {
 
     const friendRequest = new this.friendRequestModel({
       sender: currentUser.id,
-      reciever: receiverId,
+      receiver: receiverId,
       status: 'pending'
     })
 
@@ -54,7 +57,6 @@ export class FriendService {
     })
 
     this.friendGateway.handleSendFriendRequest(receiverId, responseFriendRequeest)
-    return responseFriendRequeest
 
   }
 
@@ -120,7 +122,6 @@ export class FriendService {
       responseFriendRequest,
       user.id
     )
-    return friendRequest
   }
 
   async rejectFriendRequest(user: IUserPaylod, friendRequestId: string) {
@@ -152,15 +153,6 @@ export class FriendService {
 
 
   async getCurrentFriends(user: IUserPaylod) {
-    // const incommingFriends = await this.friendRequestModel.find({
-    //   receiver: user.id,
-    //   status: 'accept'
-    // }).populate('sender', 'name email avatar')
-    // const outgoingFriends = await this.friendRequestModel.find({
-    //   sender: user.id,
-    //   status: 'accept'
-    // }).populate('receiver', 'name email avatar')
-
     return this.userService.getFriends(user.id)
 
   }

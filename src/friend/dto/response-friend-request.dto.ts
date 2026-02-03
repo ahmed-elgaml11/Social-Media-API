@@ -6,13 +6,13 @@ export class ResponseFriendRequestDto {
     @ObjectId()
     _id: string
     @Expose()
-    @Transform(({ obj }) => obj.sender?.name)
+    @Transform(({ obj }) => obj.sender?.name ? obj.sender?.name : null)
     senderName: string
     @Expose()
-    @Transform(({ obj }) => obj.sender?._id?.toString())
+    @Transform(({ obj }) => obj.sender?._id ? obj.sender?._id.toString() : null)
     senderId: string
     @Expose()
-    @Transform(({ obj }) => obj.sender?.avatar.public_id ? `https://res.cloudinary.com/${process.env.CLOUDINARY_NAME}/${obj.sender?.avatar.resource_type}/upload/${obj.sender?.avatar.version}/${obj.sender?.avatar.public_id}.${obj.sender?.avatar.format}` : null)
+    @Transform(({ obj }) => obj.sender?.avatar?.secure_url ? obj.sender?.avatar?.secure_url : null)
     senderAvatarUrl: string
 
     @Expose()

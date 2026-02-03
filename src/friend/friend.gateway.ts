@@ -35,6 +35,6 @@ export class FriendGateway {
   }
 
   handleUnFriend(friendId: string, unfriendById: string) {
-    this.server.to(friendId).emit('un_friend', unfriendById);
+    this.server.to(friendId).emit('unfriend', unfriendById);
   }
 }     

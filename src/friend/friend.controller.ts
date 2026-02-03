@@ -1,6 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Param, Delete, UseGuards, HttpCode } from '@nestjs/common';
 import { FriendService } from './friend.service';
-import { UpdateFriendDto } from './dto/update-friend.dto';
 import { CurrentUser } from 'src/_cores/decorators/currentUser.auth.decorator';
 import type { IUserPaylod } from 'src/global';
 import { ParseObjectIdPipe } from 'src/_cores/pipes/parse-objectid.pipe';
@@ -14,7 +13,6 @@ import { ResponseFriendDto } from './dto/response-friend.dto ';
 export class FriendController {
   constructor(private readonly friendService: FriendService) { }
 
-  @transformToDtoResponse(ResponseFriendRequestDto)
   @HttpCode(200)
   @Post('request/:receiverId')
   sendFriendRequest(@CurrentUser() user: IUserPaylod, @Param('receiverId', ParseObjectIdPipe) id: string) {
@@ -29,17 +27,15 @@ export class FriendController {
 
   @Post('accept-request/:friendRequestId')
   async acceptFriendRequest(@CurrentUser() user: IUserPaylod, @Param('friendRequestId', ParseObjectIdPipe) friendRequestId: string) {
-
     return this.friendService.acceptFriendRequest(user, friendRequestId)
   }
 
   @Post('reject-request/:friendRequestId')
   async rejectFriendRequest(@CurrentUser() user: IUserPaylod, @Param('friendRequestId', ParseObjectIdPipe) friendRequestId: string) {
-
     return this.friendService.rejectFriendRequest(user, friendRequestId)
   }
 
-  @Get('request-pending')
+  @Get('pending-requests')
   @transformToDtoResponse(ResponseFriendRequestDto)
   getCurrentPendingRequest(@CurrentUser() user: IUserPaylod) {
     return this.friendService.getCurrentPendingRequest(user);

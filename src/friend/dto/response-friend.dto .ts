@@ -8,6 +8,6 @@ export class ResponseFriendDto {
     @Expose()
     name: string
     @Expose()
-    @Transform(({ obj }) => obj?.avatar?.public_id ? `https://res.cloudinary.com/${process.env.CLOUDINARY_NAME}/${obj?.avatar?.resource_type}/upload/${obj?.avatar?.version}/${obj?.avatar?.public_id}.${obj?.avatar?.format}` : null)
+    @Transform(({ obj }) => obj?.avatar?.secure_url ? obj.avatar?.secure_url : null)
     avatarUrl: string
 }
