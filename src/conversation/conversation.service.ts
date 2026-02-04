@@ -10,6 +10,7 @@ import { AddParticipantsDto } from './dto/add-participants.dto';
 import { UsersService } from 'src/users/users.service';
 import { UserDocument } from 'src/users/schemas/user.schema';
 import { MessageDocument } from 'src/message/schemas/message.schema';
+import console from 'console';
 
 @Injectable()
 export class ConversationService {
@@ -20,17 +21,25 @@ export class ConversationService {
 
   async createPrivate(createPrivateConversationDto: CreatePrivateConversationDto, currentUser: IUserPaylod) {
     const { participantId } = createPrivateConversationDto;
+    const participant = await this.usersService.findOne(participantId);
+    if (!participant) {
+      throw new NotFoundException('Participant not found');
+    }
+
     const existingConversation = await this.conversationModel.findOne({
       participants: { $all: [currentUser.id, participantId] },
       isGroup: false,
     });
     if (existingConversation) {
-      return existingConversation;
+      return existingConversation.populate(
+        'participants',
+        '_id name avatarUrl email'
+      );
     }
     const conversation = new this.conversationModel({
       participants: [currentUser.id, participantId],
       isGroup: false,
-    });
+    })
     return conversation.save();
   }
 
@@ -43,6 +52,8 @@ export class ConversationService {
       groupAvatar,
       groupOwner: currentUser.id,
     });
+
+
     return conversation.save();
   }
 

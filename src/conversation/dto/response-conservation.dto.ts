@@ -2,6 +2,7 @@ import { Expose, Transform, Type } from "class-transformer";
 import { ObjectId } from "src/_cores/decorators/object-id.decorator";
 export class ParticipantDto {
     @Expose()
+    @ObjectId()
     _id: string;
     @Expose()
     name: string;
@@ -16,6 +17,7 @@ export class ParticipantDto {
 
 export class ResponseConversationDto {
     @Expose()
+    @ObjectId()
     _id: string;
     @Expose()
     isGroup: boolean;
@@ -24,13 +26,13 @@ export class ResponseConversationDto {
     @Type(() => ParticipantDto)
     participants: ParticipantDto[];
     @Expose()
-    @Transform(({ obj }) => obj.groupOwner._id)
+    @Transform(({ obj }) => obj.groupOwner?._id)
     groupOwnerId?: string;
     @Expose()
-    @Transform(({ obj }) => obj.groupOwner.name)
+    @Transform(({ obj }) => obj.groupOwner?.name)
     groupOwnerName?: string;
     @Expose()
-    @Transform(({ obj }) => obj.groupOwner.email)
+    @Transform(({ obj }) => obj.groupOwner?.email)
     groupOwnerEmail?: string;
     @Expose()
     @Transform(({ obj }) => obj.groupAvatar?.secure_url ? obj.groupAvatar.secure_url : null)
