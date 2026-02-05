@@ -11,6 +11,8 @@ import { UsersService } from 'src/users/users.service';
 import { UserDocument } from 'src/users/schemas/user.schema';
 import { MessageDocument } from 'src/message/schemas/message.schema';
 import console from 'console';
+import { Types } from 'mongoose';
+
 
 @Injectable()
 export class ConversationService {
@@ -28,7 +30,7 @@ export class ConversationService {
 
     const existingConversation = await this.conversationModel.findOne({
       participants: { $all: [currentUser.id, participantId] },
-      isGroup: false,
+      isGroup: false
     });
     if (existingConversation) {
       return existingConversation.populate(
@@ -60,7 +62,7 @@ export class ConversationService {
   async findAll(currentUser: IUserPaylod, limit: number = 10, cursor: string) {
 
     const query: Record<string, any> = {
-      participants: { $in: [currentUser.id] },
+      participants: { $in: [new Types.ObjectId(currentUser.id)] },
     }
     if (cursor) {
       query.lastMessageAt = { $lt: new Date(cursor) };
@@ -80,14 +82,16 @@ export class ConversationService {
       .limit(limit + 1)
       .lean()
 
+
     const hasNextPage = conversations.length > limit;
     const items = hasNextPage ? conversations.slice(0, limit) : conversations;
     const nextCursor = hasNextPage ? items[limit - 1]?.lastMessageAt : null;
 
     const resultItems = items.map((conversation) => {
       const seenBy = conversation.lastMessage?.seenBy || [];
-      const isLastMessageSeen = seenBy.some((user) => user._id.toString() === currentUser.id.toString());
-      return {
+      const isLastMessageSeen = seenBy.some(
+        (userId) => userId.toString() === currentUser.id
+      ); return {
         ...conversation,
         isLastMessageSeen,
       }
@@ -104,11 +108,11 @@ export class ConversationService {
   }
 
   async update(id: string, updateConversationDto: UpdateConversationDto, currentUser: IUserPaylod) {
-    const conversation = await this.conversationModel.findById(id);
+    const conversation = await this.conversationModel.findById(id).populate('groupOwner', '_id');
     if (!conversation) {
       throw new NotFoundException('Conversation not found');
     }
-    if (conversation?.groupOwner?._id.toString() !== currentUser.id) {
+    if (conversation?.isGroup && conversation?.groupOwner?._id.toString() !== currentUser.id) {
       throw new UnauthorizedException('You are not authorized to update this conversation');
     }
 
@@ -122,14 +126,18 @@ export class ConversationService {
   }
 
   async addParticipants(id: string, currentUser: IUserPaylod, addParticipantsDto: AddParticipantsDto) {
+    const { participantIds } = addParticipantsDto
     const conversation = await this.conversationModel.findById(id);
     if (!conversation || !conversation.isGroup) {
       throw new NotFoundException('Conversation not found');
     }
-    const { participantIds } = addParticipantsDto
+    console.log(conversation?.groupOwner?._id.toString(), 'xxxxxxxxx')
+    console.log(conversation?.groupOwner?.toString(), 'yyyyyyyy')
     if (conversation?.groupOwner?._id.toString() !== currentUser.id) {
       throw new ForbiddenException('You are not authorized to add participants');
     }
+    console.log(conversation?.participants[0]?._id.toString(), 'xxxxxxxx')
+    console.log(conversation?.participants[0]?.toString(), 'yyyyyyyy')
 
     const existingParticipantIds = conversation.participants.map((participant) => participant._id.toString());
 
@@ -176,14 +184,11 @@ export class ConversationService {
       throw new NotFoundException('Conversation not found');
     }
 
-    if (conversation?.isGroup && conversation?.groupOwner?._id.toString() !== currentUser.id) {
+    if (conversation?.isGroup && conversation?.groupOwner?.toString() !== currentUser.id) {
       throw new ForbiddenException();
     }
 
     await conversation.deleteOne();
-
-
-    return conversation;
   }
 
 
